@@ -6,6 +6,7 @@ All of the models are stored in this module
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Identity
 
 logger = logging.getLogger("flask.app")
 
@@ -29,7 +30,7 @@ class ShopCarts(db.Model):
     """
     app = None
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, Identity(start=1, cycle=True), primary_key=True)
     # Should add db.ForeignKey(customer.id) when integrate with Customer.
     customer_id = db.Column(db.Integer, index=True)
     # Should add db.ForeignKey(product.id) when integrate with product.
@@ -108,6 +109,12 @@ class ShopCarts(db.Model):
         return cls.query.all()
 
     @classmethod
+    def find(cls, by_id):
+        """ Finds a shopcart by it's ID """
+        logger.info("Processing lookup for id %s ...", by_id)
+        return cls.query.get(by_id)
+
+    @classmethod
     def find_by_customer_id(cls, customer_id):
         """ Finds a ShopCarts by customer id """
         logger.info("Processing lookup for customer id %d ...", customer_id)
@@ -118,11 +125,11 @@ class ShopCarts(db.Model):
         """ Finds a ShopCarts by customer id and product id """
         logger.info(
             "Processing lookup for customer id %d and product id %d", customer_id, product_id)
-        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id)
+        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).first()
 
     @classmethod
     def check_exist_by_customer_id_and_product_id(cls, customer_id, product_id):
         """ check if this ShopCarts record is exists by customer id and product id """
         logger.info(
             "Checking record with customer id %d and product id %d", customer_id, product_id)
-        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id) is not None
+        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).count() != 0
