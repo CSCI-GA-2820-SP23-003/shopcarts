@@ -10,4 +10,4 @@ class ShopCartsFactory(factory.Factory):
     customer_id = factory.Sequence(lambda n: n)
     product_id = factory.Sequence(lambda n: n)
     quantities = factory.Sequence(lambda n: n)
-    price = factory.Sequence(lambda n: n)
+    # price = factory.Sequence(lambda n: n)

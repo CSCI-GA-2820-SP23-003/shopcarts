@@ -35,7 +35,7 @@ class ShopCarts(db.Model):
     # Should add db.ForeignKey(product.id) when integrate with product.
     product_id = db.Column(db.Integer)
     quantities = db.Column(db.Integer)
-    price = db.Column(db.Numeric(10, 2))
+    # price = db.Column(db.Numeric(10, 2))
 
     def __repr__(self):
         return f"<ShopCarts customer_id=[{self.customer_id} product_id=[{self.product_id}]>"
@@ -44,8 +44,8 @@ class ShopCarts(db.Model):
         """
         Creates a ShopCarts record to the database.
         """
-        logger.info("Creating a ShopCarts record for customer %d with product %d quantities %d price %d",
-                    self.customer_id, self.product_id, self.quantities, self.price)
+        logger.info("Creating a ShopCarts record for customer %d with product %d quantities %d",
+                    self.customer_id, self.product_id, self.quantities)
         # self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
@@ -54,20 +54,20 @@ class ShopCarts(db.Model):
         """
         Updates a ShopCarts record to the database
         """
-        logger.info("Saving a ShopCarts record for customer %d with product %d quantities %d price %d",
-                    self.customer_id, self.product_id, self.quantities, self.price)
+        logger.info("Saving a ShopCarts record for customer %d with product %d quantities %d",
+                    self.customer_id, self.product_id, self.quantities)
         db.session.commit()
 
     def delete(self):
         """ Removes a ShopCarts from the data store """
-        logger.info("Deleting a ShopCarts record for customer %d with product %d quantities %d price %d",
-                    self.customer_id, self.product_id, self.quantities, self.price)
+        logger.info("Deleting a ShopCarts record for customer %d with product %d quantities %d",
+                    self.customer_id, self.product_id, self.quantities)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
         """ Serializes a ShopCarts into a dictionary """
-        return {"id": self.id, "name": self.name}
+        return {"id": self.id, "customer_id": self.customer_id, "product_id": self.product_id, "quantities": self.quantities}
 
     def deserialize(self, data):
         """
@@ -77,7 +77,9 @@ class ShopCarts(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
+            self.customer_id = data["customer_id"]
+            self.product_id = data["product_id"]
+            self.quantities = data["quantities"]
         except KeyError as error:
             raise DataValidationError(
                 "Invalid ShopCarts: missing " + error.args[0]
