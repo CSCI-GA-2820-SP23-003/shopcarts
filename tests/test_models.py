@@ -8,7 +8,7 @@ import unittest
 from service import app
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from service.models import ShopCarts, DataValidationError, db
-from .shopCartFactory import ShopCartsFactory
+from .shop_cart_factory import ShopCartsFactory
 
 
 ######################################################################
