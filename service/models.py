@@ -39,7 +39,7 @@ class ShopCarts(db.Model):
     # price = db.Column(db.Numeric(10, 2))
 
     def __repr__(self):
-        return f"<ShopCarts customer_id=[{self.customer_id} product_id=[{self.product_id}]>"
+        return f"<ShopCarts customer_id=[{self.customer_id}] product_id=[{self.product_id}] quantities=[{self.quantities}]>"
 
     def create(self):
         """
@@ -55,6 +55,8 @@ class ShopCarts(db.Model):
         """
         Updates a ShopCarts record to the database
         """
+        if not self.id:
+            raise DataValidationError("Don't exist current ShopCarts record.")
         logger.info("Saving a ShopCarts record for customer %d with product %d quantities %d",
                     self.customer_id, self.product_id, self.quantities)
         db.session.commit()

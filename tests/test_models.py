@@ -58,6 +58,13 @@ class TestShopCartsModel(unittest.TestCase):
         self.assertEqual(shop_cart.quantities, 1)
         self.assertIsInstance(shop_cart.id, int)
 
+    def test__repr__(self):
+        """test shopcart __repr__"""
+        shop_cart = ShopCarts(customer_id=1, product_id=1, quantities=1)
+        shop_cart.create()
+        self.assertEqual(shop_cart.__repr__,
+                         "<ShopCarts customer_id=[1] product_id=[1] quantities=[1]>")
+
     def test_find_shopcarts(self):
         """Test get a shopcarts record by its id"""
         shop_cart1 = ShopCartsFactory()
@@ -88,6 +95,13 @@ class TestShopCartsModel(unittest.TestCase):
         self.assertEqual(shop_cart.product_id, 15)
         self.assertEqual(shop_cart.quantities, 15)
 
+    def test_update_shopcarts_not_exist(self):
+        """ Test update not existing record"""
+        shop_cart2 = ShopCartsFactory()
+        shop_cart2.id = 100
+        shop_cart2.update()
+        self.assertRaises(DataValidationError)
+
     def test_delete_shopcarts(self):
         """Test delete shopcarts record by its id"""
         shop_cart = ShopCartsFactory()
@@ -117,6 +131,21 @@ class TestShopCartsModel(unittest.TestCase):
         self.assertEqual(shop_cart.customer_id, 1)
         self.assertEqual(shop_cart.product_id, 1)
         self.assertEqual(shop_cart.quantities, 1)
+
+    def test_deserialize_shopcarts_missing(self):
+        """Test deserialize shopcarts record with missing key word """
+        shop_cart_dict = {"id": 3,
+                          "product_id": 1, "quantities": 1}
+        shop_cart = ShopCarts()
+        self.assertRaises(DataValidationError,
+                          shop_cart.deserialize, shop_cart_dict)
+
+    def test_deserialize_shopcarts_bad(self):
+        """Test deserialize shopcarts record with bad data """
+        shop_cart_dict = {"id": 3, "custome": 1,
+                          "product_id": 1, "quantities": 1}
+        shop_cart = ShopCarts()
+        self.assertRaises(DataValidationError)
 
     def test_all_shopcarts(self):
         """Test get all shopcarts record"""
