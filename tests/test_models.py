@@ -62,7 +62,7 @@ class TestShopCartsModel(unittest.TestCase):
         """test shopcart __repr__"""
         shop_cart = ShopCarts(customer_id=1, product_id=1, quantities=1)
         shop_cart.create()
-        self.assertEqual(shop_cart.__repr__,
+        self.assertEqual(repr(shop_cart),
                          "<ShopCarts customer_id=[1] product_id=[1] quantities=[1]>")
 
     def test_find_shopcarts(self):
