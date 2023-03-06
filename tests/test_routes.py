@@ -17,6 +17,9 @@ from service.common import status  # HTTP Status Codes
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
+
+
+class TestShopCartsServer(TestCase):
 class TestYourResourceServer(TestCase):
     """ REST API Server Tests """
 
