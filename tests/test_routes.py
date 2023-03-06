@@ -54,7 +54,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_add_item(self):
-        """ It should Create a enry in database for given customer if and itemid combination"""
+        """ It should Create a enry in database for given customer if and item_id combination"""
         #self.app.get()
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -64,7 +64,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["quantities"], 1)
 
     def test_item_already_exists(self):
-        """ It should detect counter already exists """
+        """ It should detect customer and item row already exists. so only update/delete requests will be accepted """
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)  
