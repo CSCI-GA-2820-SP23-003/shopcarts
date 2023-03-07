@@ -46,7 +46,7 @@ nosetests -v --with-spec --spec-color
 | GET /shopcarts/<int:customer_id> | Return all the items in customer<customer_id> shopcart lists| |
 | GET /shopcarts/<int:customer_id>/<int:product_id> | Return detail information about item<product_id> in customer<customer_id> shopcart| |
 | POST /shopcarts/<int:customer_id>/<int:product_id> | Crate a shop cart item<product_id> for customer<customer_id> | |
-| PUT /shopcarts/<int:customer_id>/<int:product_id> | Update a shop cart item<product_id> for customer<customer_id> | |
+| PUT /shopcarts/<int:customer_id>/<int:product_id>/<int:quantity> | Update a shop cart item<product_id> for customer<customer_id> | 200, 404 |
 | DELETE /shopcarts/<int:customer_id>/<int:product_id> | Delete a shop cart item<product_id> for customer<customer_id> | |
 | DELETE /shopcarts/<int:customer_id> | Delete all items for customer<customer_id> | |
 
