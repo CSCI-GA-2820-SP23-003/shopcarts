@@ -61,3 +61,35 @@ def add_item(customer_id, item_id):
         jsonify(shopcart.serialize()),
         status.HTTP_201_CREATED
     )
+
+
+# -----------------------------------------------------------
+# UPDATE PRODUCT QUANTITY
+# -----------------------------------------------------------
+@app.route("/shopcarts/<int:customer_id>/<int:product_id>/<int:quantity>", methods=["PUT"])
+def update_shopcart_item(customer_id, product_id, quantity):
+    """Updates the quantity of an existing product"""
+    app.logger.info(f"Update product-{product_id} in customer-{customer_id}'s cart to {quantity}")
+
+    product_id = int(product_id)
+    customer_id = int(customer_id)
+    quantity = int(quantity)
+
+    shopcart_item = ShopCarts.find_by_customer_id_and_product_id(customer_id, product_id)
+
+    if not shopcart_item:
+        app.logger.error(f"Product-{product_id} doesn't exist in customer-{customer_id}'s cart!")
+        abort(status.HTTP_404_NOT_FOUND, f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
+
+    shopcart_item.quantities = quantity
+    response_status = status.HTTP_200_OK
+
+    if quantity > 0:
+        shopcart_item.update()
+        app.logger.info(f"Updated Product-{product_id} quantity to {quantity} in customer-{customer_id}'s cart!")
+    else:
+        shopcart_item.delete()
+        response_status = status.HTTP_204_NO_CONTENT
+        app.logger.info(f"Deleted Product-{product_id} from customer-{customer_id}'s cart!")
+
+    return jsonify(shopcart_item.serialize()), response_status
