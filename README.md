@@ -55,6 +55,13 @@ tests/              - test cases package
 └── test_routes.py  - test suite for service routes
 ```
 
+## ShopCart API:
+Update an existing item quantity:
+```
+curl --location --request PUT 'url:port/shopcarts/<customer_id>/<product_id>/<quantity>'
+```
+Replace <customer_id>, <product_id> and <quantity> with the appropriate values
+
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
