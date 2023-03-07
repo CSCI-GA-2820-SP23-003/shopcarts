@@ -91,6 +91,7 @@ def list_shopcart_items(customer_id):
             'item_id': current_item['product_id'],
             'quantity': current_item['quantities'], 
             # 'shopcart_record_id': current_item['id']
+            # will return price after integrating with product
         }
         items.append(item)
 
