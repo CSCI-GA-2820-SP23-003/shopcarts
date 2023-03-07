@@ -61,3 +61,24 @@ def add_item(customer_id, item_id):
         jsonify(shopcart.serialize()),
         status.HTTP_201_CREATED
     )
+
+
+# -----------------------------------------------------------
+# Read an item from a shopcart
+# -----------------------------------------------------------
+@app.route("/shopcarts/<customer_id>/<item_id>", methods=["GET"])
+def get_item(customer_id, item_id):
+    """
+    Read an item from a shopcart
+    """
+    app.logger.info("Request to read an Item %s from Customer with id: %s 's shopcart", item_id, customer_id)
+
+    # See if the item exists and abort if it doesn't
+    if ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, item_id) == 0:
+         logger.info(f"Customer {customer_id} and coresponding ietm {item_id} already exists")
+         abort(status.HTTP_404_NOT_FOUND, f"Customer {customer_id} and coresponding ietm {item_id} could not be found.")
+
+    # Read an item with item_id
+    result = ShopCarts.find_by_customer_id_and_product_id(customer_id, item_id)
+    message = result.serialize()
+    return jsonify(result.serialize()), status.HTTP_200_OK
