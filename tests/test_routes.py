@@ -5,18 +5,12 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
-import logging
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
 from service import app
-import service.config
 from service.models import db, ShopCarts
 from service.common import status  # HTTP Status Codes
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from .shop_cart_factory import ShopCartsFactory
-
-from tests.shop_cart_factory import ShopCartsFactory
 
 ######################################################################
 #  T E S T   C A S E S
@@ -24,6 +18,7 @@ from tests.shop_cart_factory import ShopCartsFactory
 
 CUSTOMER_ID = 1
 ITEM_ID = 1
+
 
 class TestShopCartsServer(TestCase):
     """ REST API Server Tests """
@@ -71,7 +66,7 @@ class TestShopCartsServer(TestCase):
 
     def test_add_item(self):
         """ It should Create a entry in database for given customer id and item_id combination"""
-        #self.app.get()
+        # self.app.get()
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
