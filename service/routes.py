@@ -110,7 +110,7 @@ def list_shopcart_items(customer_id):
     return jsonify(shopcart_list), status.HTTP_200_OK
 
 # -----------------------------------------------------------
-# UPDATE PRODUCT QUANTITY
+# UPDATE PRODUCT QUANTITY IN CART
 # -----------------------------------------------------------
 
 
@@ -136,5 +136,29 @@ def update_shopcart_item(customer_id, product_id, quantity):
     shopcart_item.quantities = quantity
     shopcart_item.update()
     app.logger.info(f"Updated Product-{product_id} quantity to {quantity} in customer-{customer_id}'s cart!")
+
+    return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
+
+# -----------------------------------------------------------
+# DELETE PRODUCT FROM CART
+# -----------------------------------------------------------
+
+
+@app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["DELETE"])
+def delete_shopcart_item(customer_id, product_id):
+    """Deletes an existing product from cart"""
+    app.logger.info(f"Delete product-{product_id} in customer-{customer_id}'s")
+
+    product_id = int(product_id)
+    customer_id = int(customer_id)
+
+    shopcart_item = ShopCarts.find_by_customer_id_and_product_id(customer_id, product_id)
+
+    if not shopcart_item:
+        app.logger.error(f"Product-{product_id} doesn't exist in customer-{customer_id}'s cart!")
+        abort(status.HTTP_404_NOT_FOUND, f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
+
+    shopcart_item.delete()
+    app.logger.info(f"Deleted Product-{product_id} in customer-{customer_id}'s cart!")
 
     return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
