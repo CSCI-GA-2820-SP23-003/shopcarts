@@ -19,7 +19,8 @@ from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIO
 #  T E S T   C A S E S
 ######################################################################
 
-
+CUSTOMER_ID = 1
+ITEM_ID=1
 class TestShopCartsServer(TestCase):
     """ REST API Server Tests """
 
@@ -51,3 +52,23 @@ class TestShopCartsServer(TestCase):
         """ It should call the home page """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_add_item(self):
+        """ It should Create a enry in database for given customer if and item_id combination"""
+        #self.app.get()
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        self.assertEqual(data["customer_id"], CUSTOMER_ID)
+        self.assertEqual(data["product_id"], ITEM_ID)
+        self.assertEqual(data["quantities"], 1)
+
+    def test_item_already_exists(self):
+        """ It should detect customer and item row already exists. so only update/delete requests will be accepted """
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)  
+
+
+
+
