@@ -16,12 +16,14 @@ from service.common import status  # HTTP Status Codes
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from .shop_cart_factory import ShopCartsFactory
 
+from tests.shop_cart_factory import ShopCartsFactory
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
 
 CUSTOMER_ID = 1
-ITEM_ID=1
+ITEM_ID = 1
 
 class TestShopCartsServer(TestCase):
     """ REST API Server Tests """
@@ -30,6 +32,7 @@ class TestShopCartsServer(TestCase):
     def setUpClass(cls):
         """ This runs once before the entire test suite """
         app.config["TESTING"] = True
+        app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = SQLALCHEMY_TRACK_MODIFICATIONS
         ShopCarts.init_db(app)
@@ -42,9 +45,12 @@ class TestShopCartsServer(TestCase):
     def setUp(self):
         """ This runs before each test """
         self.app = app.test_client()
+        db.session.query(ShopCarts).delete()  # clean up the last tests
+        db.session.commit()
 
     def tearDown(self):
         """ This runs after each test """
+        db.session.remove()
 
     def _add_new_shopcart_item(self):
         shopcart = ShopCarts(customer_id=0, product_id=0, quantities=1)
@@ -78,6 +84,33 @@ class TestShopCartsServer(TestCase):
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    # TEST CASES FOR READ ITEMS OF A SHOPCART
+    def test_read_shopcart_items(self):
+
+        """ It should read all items in a shopcart given customer ID """
+
+        records = ShopCartsFactory.create_batch(2)
+        for item in records:
+            item.create()
+
+        customer_id = records[0].customer_id
+        count_items = len([item for item in records if item.customer_id == customer_id])
+
+        response = self.app.get(f'/shopcarts/{customer_id}/items')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.get_json()
+        self.assertEqual(data['customer_id'], customer_id)
+        self.assertEqual(len(data['items']), count_items)
+
+    def test_read_empty_shopcart(self):
+        """ It should return no items if the shopcart is empty """
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data['customer_id'], CUSTOMER_ID)
+        self.assertEqual(len(data['items']), 0)
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""
