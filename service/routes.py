@@ -106,6 +106,37 @@ def list_shopcart_items(customer_id):
     return jsonify(shopcart_list), status.HTTP_200_OK
 
 
+<<<<<<< Updated upstream
+=======
+
+@app.route("/shopcarts/<int:customer_id>/<int:product_id>/<int:quantity>", methods=["PUT"])
+def update_shopcart_item(customer_id, product_id, quantity):
+    """Updates the quantity of an existing product"""
+    app.logger.info(f"Update product-{product_id} in customer-{customer_id}'s cart to {quantity}")
+
+    product_id = int(product_id)
+    customer_id = int(customer_id)
+    quantity = int(quantity)
+
+    if quantity <= 0:
+        app.logger.error(f"Quantity to be updated [{quantity}] should be positive!")
+        abort(status.HTTP_400_BAD_REQUEST, f"Quantity to be updated [{quantity}] should be positive!")
+
+    shopcart_item = ShopCarts.find_by_customer_id_and_product_id(customer_id, product_id)
+
+    if not shopcart_item:
+        app.logger.error(f"Product-{product_id} doesn't exist in customer-{customer_id}'s cart!")
+        abort(status.HTTP_404_NOT_FOUND, f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
+
+    shopcart_item.quantities = quantity
+    shopcart_item.update()
+    app.logger.info(f"Updated Product-{product_id} quantity to {quantity} in customer-{customer_id}'s cart!")
+
+    return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
+
+
+
+>>>>>>> Stashed changes
 ######################################################################
 # READ AN ITEM FROM A SHOPCART
 ######################################################################

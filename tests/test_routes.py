@@ -110,7 +110,35 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["customer_id"], CUSTOMER_ID)
         self.assertEqual(data["product_id"], ITEM_ID)
 
+<<<<<<< Updated upstream
     def test_get_item_item_not_found(self):
         """ It should not Read an item if the corresponding customer_id and item_id do not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.status.HTTP_404_NOT_FOUND)  
+=======
+    def test_update_item_quantity_zero(self):
+        """ It should give an error on trying to set a non-positive quantity for a product in the customer's cart"""
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}/0")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_item_quantity_non_existent(self):
+        """ It should give an error on trying to update a non-existent product in the customer's cart"""
+        customer_id = 0
+        product_id = 0
+        quantity = 10
+        resp = self.app.put(f"/shopcarts/{customer_id}/{product_id}/{quantity}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_item(self):
+        """It should Get an item from a shopcart"""
+        resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["customer_id"], CUSTOMER_ID)
+        self.assertEqual(data["product_id"], ITEM_ID)
+
+    def test_get_item_item_not_found(self):
+        """ It should not Read an item if the corresponding customer_id and item_id do not exist """
+        resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.assertEqual(resp.status_code, status.status.HTTP_404_NOT_FOUND)  
+>>>>>>> Stashed changes
