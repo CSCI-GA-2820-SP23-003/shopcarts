@@ -2,8 +2,6 @@
 Test cases for ShopCarts Model
 
 """
-import os
-import logging
 import unittest
 from service import app
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
@@ -142,9 +140,9 @@ class TestShopCartsModel(unittest.TestCase):
 
     def test_deserialize_shopcarts_bad(self):
         """Test deserialize shopcarts record with bad data """
-        shop_cart_dict = {"id": 3, "custome": 1,
-                          "product_id": 1, "quantities": 1}
-        shop_cart = ShopCarts()
+        # shop_cart_dict = {"id": 3, "custome": 1,
+        #                   "product_id": 1, "quantities": 1}
+        # shop_cart = ShopCarts()
         self.assertRaises(DataValidationError)
 
     def test_all_shopcarts(self):
@@ -207,7 +205,7 @@ class TestShopCartsModel(unittest.TestCase):
         shop_cart3.create()
         cid = shop_cart2.customer_id
         pid = 3
-        uid = shop_cart2.id
+        # uid = shop_cart2.id
         shop_cart = ShopCarts(customer_id=cid, product_id=1, quantities=1)
         shop_cart.create()
         shop_cart = ShopCarts(customer_id=cid, product_id=2, quantities=1)
