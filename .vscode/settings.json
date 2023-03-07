@@ -3,7 +3,9 @@
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
     "python.testing.nosetestsEnabled": true,
-    "python.testing.nosetestArgs": ["-c=setup.cfg"],
+    "python.testing.nosetestArgs": [
+        "-c=setup.cfg"
+    ],
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
     "python.testing.unittestArgs": [
@@ -13,7 +15,9 @@
         "-p",
         "test_*.py"
     ],
-    "cucumberautocomplete.steps": ["features/steps/*.py"],
+    "cucumberautocomplete.steps": [
+        "features/steps/*.py"
+    ],
     "cucumberautocomplete.syncfeatures": "features/*.feature",
     "cucumberautocomplete.strictGherkinCompletion": true,
     "cucumberautocomplete.strictGherkinValidation": true,
@@ -27,6 +31,10 @@
         "**/.DS_Store": true,
         "**/*.pyc": true,
         "**/__pycache__": true
-    }
+    },
+    "cSpell.customDictionaries": {},
+    "cSpell.ignoreWords": [
+        "shopcart",
+        "shopcarts"
+    ]
 }
-

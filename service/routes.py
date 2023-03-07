@@ -61,3 +61,45 @@ def add_item(customer_id, item_id):
         jsonify(shopcart.serialize()),
         status.HTTP_201_CREATED
     )
+
+######################################################################
+# LIST ALL ITEMS IN A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:customer_id>/items", methods = ['GET'])
+def list_shopcart_items(customer_id):
+    """
+    Retrieve all the items in a customer's cart
+    This endpoint will return the cart items based on customer id
+    Args:
+        customer_id (int): the id of the customer
+    Returns:
+        customer_id (int): id of the customer who owns the shopcart
+        items (list): list of all items
+            item_id (int): product id
+            quantity (int): number of the product in the cart 
+    """
+
+    app.logger.info("Request for shopcart items of customer with id: %s", customer_id)
+    results = ShopCarts.find_by_customer_id(customer_id)
+
+    shopcart_list = {}
+    items = []
+
+    for record in results:
+        current_item = record.serialize()
+        item = {
+            'item_id': current_item['product_id'],
+            'quantity': current_item['quantities'], 
+            # 'shopcart_record_id': current_item['id']
+        }
+        items.append(item)
+
+    shopcart_list['customer_id'] = customer_id
+    shopcart_list['items'] = items
+
+    app.logger.info(
+        "Returning %d items of customer %d", len(shopcart_list['items']),
+        shopcart_list['customer_id']
+    )
+
+    return jsonify(shopcart_list), status.HTTP_200_OK
