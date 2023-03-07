@@ -120,15 +120,12 @@ class TestShopCartsServer(TestCase):
         shop_cart.delete()
 
     def test_update_item_quantity_zero(self):
-        """ It should delete a product from the customer's cart when it quantity goes to zero"""
-        shop_cart = self._add_new_shopcart_item()
-        customer_id = shop_cart.customer_id
-        product_id = shop_cart.product_id
-        resp = self.app.put(f"/shopcarts/{customer_id}/{product_id}/0")
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        """ It should give an error on trying to set a non-positive quantity for a product in the customer's cart"""
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}/0")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_item_quantity_non_existent(self):
-        """ It should give an error on trying to update a non existent product in the customer's cart"""
+        """ It should give an error on trying to update a non-existent product in the customer's cart"""
         customer_id = 0
         product_id = 0
         quantity = 10
