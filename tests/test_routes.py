@@ -167,11 +167,8 @@ class TestShopCartsServer(TestCase):
         response = self.app.delete(f"/shopcarts/{customer_id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
-  
+    
     def test_delete_non_existent_shopcart(self):
         """It should not Delete an shopcart that does not exist"""
         response = self.app.get(f"/shopcarts/{customer_id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-
-

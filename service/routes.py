@@ -185,7 +185,7 @@ def get_item(customer_id, item_id):
 ######################################################################
 # DELETE A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:customer_id>",, methods=["DELETE"])
+@app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
 def delete_shopcart(customer_id):
     """
     Delete a shopcart
@@ -196,7 +196,7 @@ def delete_shopcart(customer_id):
     if shopcart:
         shopcart.delete()
         app.logger.info("Shopcart with ID [%s] delete complete.", customer_id)
-    return "", status.HTTP_204_NO_CONTENT
+        return "", status.HTTP_204_NO_CONTENT
     # Abort if the shopcart does not exist
     else:
         app.logger.error(f"Shopcart with id {customer_id} does not exist")
