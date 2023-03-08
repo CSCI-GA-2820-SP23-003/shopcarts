@@ -182,4 +182,22 @@ def get_item(customer_id, item_id):
         logger.error(f"Customer {customer_id} and corresponding item {item_id} could not be found.")
         abort(status.HTTP_404_NOT_FOUND, f"Customer {customer_id} and corresponding item {item_id} could not be found.")
  
-
+######################################################################
+# DELETE A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:customer_id>",, methods=["DELETE"])
+def delete_shopcart(customer_id):
+    """
+    Delete a shopcart
+    This endpoint will delete an shopcart based on the customer_id specified in the path
+    """
+    app.logger.info("Request to delete shopcart with id: %s", customer_id)
+    shopcart = ShopCarts.find_by_customer_id(customer_id)
+    if shopcart:
+        shopcart.delete()
+        app.logger.info("Shopcart with ID [%s] delete complete.", customer_id)
+    return "", status.HTTP_204_NO_CONTENT
+    # Abort if the shopcart does not exist
+    else:
+        app.logger.error(f"Shopcart with id {customer_id} does not exist")
+        abort(status.HTTP_404_NOT_FOUND, f"Shopcart with id {customer_id} does not exist")

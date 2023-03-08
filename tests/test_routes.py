@@ -155,8 +155,23 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["customer_id"], CUSTOMER_ID)
         self.assertEqual(data["product_id"], ITEM_ID)
 
-
     def test_get_item_item_not_found(self):
         """ It should not Read an item thats does not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.status.HTTP_404_NOT_FOUND)  
+
+    def test_delete_shopcart(self):
+        """It should Delete an shopcart"""
+        test_shopcart = ShopCartsFactory.create_batch(2)
+        customer_id = test_shopcart[0].customer_id
+        response = self.app.delete(f"/shopcarts/{customer_id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0)
+  
+    def test_delete_non_existent_shopcart(self):
+        """It should not Delete an shopcart that does not exist"""
+        response = self.app.get(f"/shopcarts/{customer_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
