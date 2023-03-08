@@ -149,14 +149,16 @@ class TestShopCartsServer(TestCase):
 
     def test_get_item(self):
         """It should Get an item from a shopcart"""
-        resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        shop_cart = self._add_new_shopcart_item()
+        customer_id = shop_cart.customer_id
+        product_id = shop_cart.product_id
+        resp = self.app.get(f"/shopcarts/{customer_id}/{product_id}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data["customer_id"], CUSTOMER_ID)
-        self.assertEqual(data["product_id"], ITEM_ID)
-
+        self.assertEqual(data["customer_id"], customer_id)
+        self.assertEqual(data["product_id"], product_id)
 
     def test_get_item_item_not_found(self):
         """ It should not Read an item thats does not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
-        self.assertEqual(resp.status_code, status.status.HTTP_404_NOT_FOUND)  
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)  
