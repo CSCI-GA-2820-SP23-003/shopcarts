@@ -166,22 +166,23 @@ def delete_shopcart_item(customer_id, product_id):
 #####################################################################
 # READ AN ITEM FROM A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<customer_id>/<item_id>", methods=["GET"])
-def get_item(customer_id, item_id):
+@app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
+def get_item(customer_id, product_id):
     """
     Read an item from a shopcart
     """
-    app.logger.info("Request to read an Item %s from Customer with id: %s 's shopcart", item_id, customer_id)
+    app.logger.info(f"Request to read an Item-{product_id} from Customer-{customer_id} 's shopcart")
     # Read an item with item_id
-    result = ShopCarts.find_by_customer_id_and_product_id(customer_id, item_id)
+    result = ShopCarts.find_by_customer_id_and_product_id(customer_id, product_id)
     if result is not None:
         message = result.serialize()
         return jsonify(result.serialize()), status.HTTP_200_OK
     # See if the item exists and abort if it doesn't
     else: 
-        logger.error(f"Customer {customer_id} and corresponding item {item_id} could not be found.")
-        abort(status.HTTP_404_NOT_FOUND, f"Customer {customer_id} and corresponding item {item_id} could not be found.")
- 
+        logger.error(f"Customer {customer_id} and corresponding item {product_id} could not be found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Customer {customer_id} and corresponding item {product_id} could not be found.")
+
+    
 ######################################################################
 # DELETE A SHOPCART
 ######################################################################
