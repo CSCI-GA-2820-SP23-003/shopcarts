@@ -131,3 +131,18 @@ class TestShopCartsServer(TestCase):
         quantity = 10
         resp = self.app.put(f"/shopcarts/{customer_id}/{product_id}/{quantity}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_existing_item(self):
+        """ It should delete a product if it exists in a customer's cart"""
+        shop_cart = self._add_new_shopcart_item()
+        customer_id = shop_cart.customer_id
+        product_id = shop_cart.product_id
+        resp = self.app.delete(f"/shopcarts/{customer_id}/{product_id}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_delete_non_existent_item(self):
+        """ It should give an error on trying to delete a non-existent product in the customer's cart"""
+        customer_id = 0
+        product_id = 0
+        resp = self.app.delete(f"/shopcarts/{customer_id}/{product_id}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
