@@ -196,8 +196,6 @@ def delete_shopcart(customer_id):
     if shopcart:
         shopcart.delete()
         app.logger.info("Shopcart with ID [%s] delete complete.", customer_id)
-        return "", status.HTTP_204_NO_CONTENT
-    # Abort if the shopcart does not exist
-    else:
-        app.logger.error(f"Shopcart with id {customer_id} does not exist")
-        abort(status.HTTP_404_NOT_FOUND, f"Shopcart with id {customer_id} does not exist")
+    return "", status.HTTP_204_NO_CONTENT
+  
+   
