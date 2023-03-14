@@ -138,7 +138,7 @@ class TestShopCartsServer(TestCase):
         customer_id = shop_cart.customer_id
         product_id = shop_cart.product_id
         resp = self.app.delete(f"/shopcarts/{customer_id}/{product_id}")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_non_existent_item(self):
         """ It should give an error on trying to delete a non-existent product in the customer's cart"""

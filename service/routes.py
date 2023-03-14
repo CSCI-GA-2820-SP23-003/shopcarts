@@ -161,7 +161,7 @@ def delete_shopcart_item(customer_id, product_id):
     shopcart_item.delete()
     app.logger.info(f"Deleted Product-{product_id} in customer-{customer_id}'s cart!")
 
-    return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
+    return "", status.HTTP_204_NO_CONTENT
 
 #####################################################################
 # READ AN ITEM FROM A SHOPCART
