@@ -161,4 +161,11 @@ class TestShopCartsServer(TestCase):
     def test_get_item_item_not_found(self):
         """ It should not Read an item thats does not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)  
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    # TEST CASES TO COVER STATUS CODE
+
+    def test_405_status_code(self):
+        """ It should throw 405 error on trying to post to a GET API """
+        resp = self.app.put("/")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
