@@ -23,8 +23,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: pgs3cr3t
-          POSTGRES_DB: testdb
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_DB: CIdb
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -59,7 +59,7 @@ jobs:
           export FLASK_APP=service:app
           nosetests
         env:
-          DATABASE_URI: "redis://redis:6379"
+          DATABASE_URI: "postgresql://postgres:1234@postgres:5432/CIdb"
 
       # Uncomment the following 2 lines during hands-on lab
 
