@@ -51,7 +51,9 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Run unit tests with nose
-        run: nosetests
+        run: |
+          export FLASK_APP=service:app
+          nosetests
         env:
           DATABASE_URI: "redis://redis:6379"
 
