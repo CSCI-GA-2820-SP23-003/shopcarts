@@ -60,10 +60,9 @@ jobs:
           nosetests
         env:
           DATABASE_URI: "postgresql://postgres:1234@postgres:5432/CIdb"
-
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v2
+        with:
+          version: "v0.1.13"
     # Uncomment the following 2 lines during hands-on lab
-
-    - name: Upload code coverage
-      uses: codecov/codecov-action@v2
-      with:
-        version: "v0.1.13"
+    
