@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/CSCI-GA-2820-SP23-003/shopcarts/actions/workflows/tdd.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP23-003/shopcarts/actions)
+[![codecov](https://codecov.io/gh/CSCI-GA-2820-SP23-003/shopcarts/branch/master/graph/badge.svg?token=G3CD93815L)](https://codecov.io/gh/CSCI-GA-2820-SP23-003/shopcarts)
 
 # NYU DevOps - Shopcarts Service
 
