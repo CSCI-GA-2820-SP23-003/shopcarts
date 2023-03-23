@@ -35,14 +35,13 @@ def index():
 # LIST ALL Shopcarts
 ######################################################################
 @app.route("/shopcarts", methods=['GET'])
-def list_shopcart_items(customer_id):
+def list_shopcarts():
     """
     Retrieve all shopcarts in DB
     This endpoint will return all the shopcart
     Args:
 
     Returns:
-        shopcart_id (int): id of the shopcart
         customer_id (int): id of the customer who owns the shopcart
     """
 
@@ -55,25 +54,57 @@ def list_shopcart_items(customer_id):
     for record in results:
         current_shopcart = record.serialize()
         shopcart = {
-            'shopcart_id': current_shopcart['id'],
             'customer_id': current_shopcart['customer_id'],
-            # 'shopcart_record_id': current_item['id']
-            # will return price after integrating with product
         }
         shopcart_list.append(shopcart)
 
     app.logger.info(
-        "Returning %d shopcart ", len(shopcart_list['items'])
+        "Returning %d shopcart ", len(shopcart_list)
     )
     res['shopcart_lists'] = shopcart_list
     return jsonify(res), status.HTTP_200_OK
 
+######################################################################
+# Create a Shopcart
+######################################################################
+
+
+@app.route("/shopcarts/<customer_id>", methods=["POST"])
+def add_shopcart(customer_id):
+    """Creates a new shopcart with customer id
+    Args:
+        customer_id (int): the id of the customer and item to add for it
+    Returns:
+        dict: the row entry in databse which contains shopcart_id, customer_id
+    """
+    app.logger.info(
+        f"Request to create a shopcart for customer {customer_id}")
+    if customer_id is None or not customer_id.isdigit():
+        abort(status.HTTP_400_BAD_REQUEST,
+              f"Bad request for {customer_id}")
+
+    customer_id = int(customer_id)
+
+    if ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.info(
+            f"Customer {customer_id} shopcart already exists")
+        abort(status.HTTP_409_CONFLICT,
+              f"Customer {customer_id} shopcart already exists")
+
+    shopcart = ShopCarts(customer_id=customer_id,
+                         product_id=-1, quantities=1)
+    shopcart.create()
+    logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
+    return (
+        jsonify({'customer_id': customer_id}),
+        status.HTTP_201_CREATED
+    )
 # -----------------------------------------------------------
 # Create counters
 # -----------------------------------------------------------
 
 
-@app.route("/shopcarts/<customer_id>/<item_id>", methods=["POST"])
+@ app.route("/shopcarts/<customer_id>/<item_id>", methods=["POST"])
 def add_item(customer_id, item_id):
     """Creates a new entry and stores it in the database
     Args:
@@ -111,7 +142,7 @@ def add_item(customer_id, item_id):
 ######################################################################
 
 
-@app.route("/shopcarts/<int:customer_id>/items", methods=['GET'])
+@ app.route("/shopcarts/<int:customer_id>/items", methods=['GET'])
 def list_shopcart_items(customer_id):
     """
     Retrieve all the items in a customer's cart
@@ -134,6 +165,8 @@ def list_shopcart_items(customer_id):
 
     for record in results:
         current_item = record.serialize()
+        if current_item['product_id'] == -1:
+            continue
         item = {
             'item_id': current_item['product_id'],
             'quantity': current_item['quantities'],
@@ -157,7 +190,7 @@ def list_shopcart_items(customer_id):
 # -----------------------------------------------------------
 
 
-@app.route("/shopcarts/<int:customer_id>/<int:product_id>/<int:quantity>", methods=["PUT"])
+@ app.route("/shopcarts/<int:customer_id>/<int:product_id>/<int:quantity>", methods=["PUT"])
 def update_shopcart_item(customer_id, product_id, quantity):
     """Updates the quantity of an existing product"""
     app.logger.info(
@@ -194,7 +227,7 @@ def update_shopcart_item(customer_id, product_id, quantity):
 # -----------------------------------------------------------
 
 
-@app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["DELETE"])
+@ app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["DELETE"])
 def delete_shopcart_item(customer_id, product_id):
     """Deletes an existing product from cart"""
     app.logger.info(f"Delete product-{product_id} in customer-{customer_id}'s")
@@ -222,7 +255,7 @@ def delete_shopcart_item(customer_id, product_id):
 ######################################################################
 
 
-@app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
+@ app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
 def get_item(customer_id, product_id):
     """
     Read an item from a shopcart
