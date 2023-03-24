@@ -161,11 +161,13 @@ def delete_shopcart_item(customer_id, product_id):
     shopcart_item.delete()
     app.logger.info(f"Deleted Product-{product_id} in customer-{customer_id}'s cart!")
 
-    return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
+    return "", status.HTTP_204_NO_CONTENT
 
 #####################################################################
 # READ AN ITEM FROM A SHOPCART
 ######################################################################
+
+
 @app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
 def get_item(customer_id, product_id):
     """
@@ -175,11 +177,8 @@ def get_item(customer_id, product_id):
     # Read an item with item_id
     result = ShopCarts.find_by_customer_id_and_product_id(customer_id, product_id)
     if result is not None:
-        message = result.serialize()
         return jsonify(result.serialize()), status.HTTP_200_OK
     # See if the item exists and abort if it doesn't
-    else: 
+    else:
         logger.error(f"Customer {customer_id} and corresponding item {product_id} could not be found.")
         abort(status.HTTP_404_NOT_FOUND, f"Customer {customer_id} and corresponding item {product_id} could not be found.")
-
-    
