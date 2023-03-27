@@ -73,6 +73,8 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["customer_id"], CUSTOMER_ID)
         self.assertEqual(data["product_id"], ITEM_ID)
         self.assertEqual(data["quantities"], 1)
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/_")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_item_already_exists(self):
         """ It should detect customer and item row already exists. so only update/delete requests will be accepted """
@@ -165,7 +167,6 @@ class TestShopCartsServer(TestCase):
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_add_shopcart(self):
         """ It should Create a shopcart in database"""
         # self.app.get()
@@ -181,6 +182,12 @@ class TestShopCartsServer(TestCase):
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}")
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
+    def test_add_shopcart_with_wrong_customer_id(self):
+        """ It should raise error since there is a shopcart in DB"""
+        # self.app.get()
+        resp = self.app.post(f"/shopcarts/_")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_read_all_shopcart(self):
         """ It should read all shopcarts """
         resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
@@ -192,11 +199,10 @@ class TestShopCartsServer(TestCase):
 
         data = response.get_json()
         self.assertEqual(len(data['shopcart_lists']), 2)
-        
+
     # TEST CASES TO COVER STATUS CODE
 
     def test_405_status_code(self):
         """ It should throw 405 error on trying to post to a GET API """
         resp = self.app.put("/")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-
