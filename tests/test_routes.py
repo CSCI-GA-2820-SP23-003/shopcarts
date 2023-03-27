@@ -167,6 +167,10 @@ class TestShopCartsServer(TestCase):
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+# -----------------------------------------------------------
+# TEST CASES FOR SHOPCART
+# -----------------------------------------------------------
+
     def test_add_shopcart(self):
         """ It should Create a shopcart in database"""
         # self.app.get()
@@ -185,20 +189,34 @@ class TestShopCartsServer(TestCase):
     def test_add_shopcart_with_wrong_customer_id(self):
         """ It should raise error since there is a shopcart in DB"""
         # self.app.get()
-        resp = self.app.post(f"/shopcarts/_")
+        resp = self.app.post("/shopcarts/_")
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_all_shopcart(self):
         """ It should read all shopcarts """
-        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
-        self.app.post(f"/shopcarts/1")
-        self.app.post(f"/shopcarts/2")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.app.post("/shopcarts/1")
+        self.app.post("/shopcarts/2")
 
-        response = self.app.get(f'/shopcarts')
+        response = self.app.get('/shopcarts')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.get_json()
         self.assertEqual(len(data['shopcart_lists']), 2)
+
+    def test_list_all_shopcarts_of_a_customer(self):
+        """ It should read all shopcarts of a customer"""
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/12")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/13")
+
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.get_json()
+        self.assertEqual(data['customer_id'], CUSTOMER_ID)
+        self.assertEqual(len(data['shopcarts']), 1)
+        self.assertEqual(len(data['shopcarts'][0]['items']), 2)
 
     # TEST CASES TO COVER STATUS CODE
 
