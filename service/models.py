@@ -105,7 +105,7 @@ class ShopCarts(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the ShopCarts in the database """
+        """ Returns all of the ShopCarts items record in the database """
         logger.info("Processing all ShopCarts")
         return cls.query.all()
 
@@ -134,3 +134,9 @@ class ShopCarts(db.Model):
         logger.info(
             "Checking record with customer id %d and product id %d", customer_id, product_id)
         return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).count() != 0
+
+    @classmethod
+    def all_shopcarts(cls):
+        """ Returns all of the ShopCarts in the database """
+        logger.info("Processing all unique ShopCarts")
+        return cls.query.filter(cls.product_id == -1).all()

@@ -145,8 +145,8 @@ class TestShopCartsModel(unittest.TestCase):
         # shop_cart = ShopCarts()
         self.assertRaises(DataValidationError)
 
-    def test_all_shopcarts(self):
-        """Test get all shopcarts record"""
+    def test_all(self):
+        """Test get all shopcarts items record"""
         shop_cart1 = ShopCartsFactory()
         shop_cart2 = ShopCartsFactory()
         shop_cart3 = ShopCartsFactory()
@@ -217,3 +217,18 @@ class TestShopCartsModel(unittest.TestCase):
             cid, 5)
         self.assertEqual(bool1, True)
         self.assertEqual(bool2, False)
+
+    def test_all_shopcart(self):
+        """Test get all shopcarts record"""
+        shop_cart1 = ShopCartsFactory()
+        shop_cart2 = ShopCartsFactory()
+        shop_cart3 = ShopCartsFactory()
+        shop_cart1.product_id = -1
+        shop_cart2.product_id = 2
+        shop_cart3.product_id = 3
+        shop_cart1.create()
+        shop_cart2.create()
+        shop_cart3.create()
+
+        all_shopcarts = ShopCarts.all_shopcarts()
+        self.assertEqual(len(all_shopcarts), 1)

@@ -73,6 +73,8 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["customer_id"], CUSTOMER_ID)
         self.assertEqual(data["product_id"], ITEM_ID)
         self.assertEqual(data["quantities"], 1)
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/_")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_item_already_exists(self):
         """ It should detect customer and item row already exists. so only update/delete requests will be accepted """
@@ -82,7 +84,6 @@ class TestShopCartsServer(TestCase):
 
     # TEST CASES FOR READ ITEMS OF A SHOPCART
     def test_read_shopcart_items(self):
-
         """ It should read all items in a shopcart given customer ID """
 
         records = ShopCartsFactory.create_batch(2)
@@ -90,7 +91,8 @@ class TestShopCartsServer(TestCase):
             item.create()
 
         customer_id = records[0].customer_id
-        count_items = len([item for item in records if item.customer_id == customer_id])
+        count_items = len(
+            [item for item in records if item.customer_id == customer_id])
 
         response = self.app.get(f'/shopcarts/{customer_id}/items')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -113,7 +115,8 @@ class TestShopCartsServer(TestCase):
         customer_id = shop_cart.customer_id
         product_id = shop_cart.product_id
         quantity = 10
-        resp = self.app.put(f"/shopcarts/{customer_id}/{product_id}/{quantity}")
+        resp = self.app.put(
+            f"/shopcarts/{customer_id}/{product_id}/{quantity}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_cart_item = resp.get_json()
         self.assertEqual(updated_cart_item["quantities"], quantity)
@@ -129,7 +132,8 @@ class TestShopCartsServer(TestCase):
         customer_id = 0
         product_id = 0
         quantity = 10
-        resp = self.app.put(f"/shopcarts/{customer_id}/{product_id}/{quantity}")
+        resp = self.app.put(
+            f"/shopcarts/{customer_id}/{product_id}/{quantity}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_existing_item(self):
@@ -162,6 +166,39 @@ class TestShopCartsServer(TestCase):
         """ It should not Read an item thats does not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_shopcart(self):
+        """ It should Create a shopcart in database"""
+        # self.app.get()
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        self.assertEqual(data["customer_id"], CUSTOMER_ID)
+
+    def test_add_duplicate_shopcart(self):
+        """ It should raise error since there is a shopcart in DB"""
+        # self.app.get()
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_add_shopcart_with_wrong_customer_id(self):
+        """ It should raise error since there is a shopcart in DB"""
+        # self.app.get()
+        resp = self.app.post(f"/shopcarts/_")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_read_all_shopcart(self):
+        """ It should read all shopcarts """
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
+        self.app.post(f"/shopcarts/1")
+        self.app.post(f"/shopcarts/2")
+
+        response = self.app.get(f'/shopcarts')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.get_json()
+        self.assertEqual(len(data['shopcart_lists']), 2)
 
     # TEST CASES TO COVER STATUS CODE
 
