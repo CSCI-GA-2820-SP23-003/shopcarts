@@ -140,7 +140,7 @@ class TestShopCartsServer(TestCase):
         customer_id = shop_cart.customer_id
         product_id = shop_cart.product_id
         resp = self.app.delete(f"/shopcarts/{customer_id}/{product_id}")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_non_existent_item(self):
         """ It should give an error on trying to delete a non-existent product in the customer's cart"""
@@ -164,6 +164,7 @@ class TestShopCartsServer(TestCase):
         """ It should not Read an item thats does not exist """
         resp = self.app.get(f"/shopcarts/{CUSTOMER_ID}/{ITEM_ID}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
     def test_add_shopcart(self):
         """ It should Create a shopcart in database"""
@@ -191,3 +192,11 @@ class TestShopCartsServer(TestCase):
 
         data = response.get_json()
         self.assertEqual(len(data['shopcart_lists']), 2)
+        
+    # TEST CASES TO COVER STATUS CODE
+
+    def test_405_status_code(self):
+        """ It should throw 405 error on trying to post to a GET API """
+        resp = self.app.put("/")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
