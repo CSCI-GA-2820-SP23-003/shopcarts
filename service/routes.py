@@ -121,6 +121,12 @@ def list_all_shopcarts_of_a_customer(customer_id):
     """
 
     app.logger.info("Request for shopcarts of customer with id: %s", customer_id)
+
+    if not ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.error(f"Customer {customer_id} does not have a cart")
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Customer {customer_id} does not have a cart")
+
     results = ShopCarts.find_by_customer_id(customer_id)
 
     shopcarts = {}
@@ -290,15 +296,10 @@ def delete_shopcart_item(customer_id, product_id):
     shopcart_item = ShopCarts.find_by_customer_id_and_product_id(
         customer_id, product_id)
 
-    if not shopcart_item:
-        app.logger.error(
-            f"Product-{product_id} doesn't exist in customer-{customer_id}'s cart!")
-        abort(status.HTTP_404_NOT_FOUND,
-              f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
-
-    shopcart_item.delete()
-    app.logger.info(
-        f"Deleted Product-{product_id} in customer-{customer_id}'s cart!")
+    if shopcart_item is not None:
+        shopcart_item.delete()
+        app.logger.info(
+            f"Deleted Product-{product_id} in customer-{customer_id}'s cart!")
 
     return "", status.HTTP_204_NO_CONTENT
 

@@ -149,7 +149,7 @@ class TestShopCartsServer(TestCase):
         customer_id = 0
         product_id = 0
         resp = self.app.delete(f"/shopcarts/{customer_id}/{product_id}")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_get_item(self):
         """It should Get an item from a shopcart"""
@@ -204,7 +204,7 @@ class TestShopCartsServer(TestCase):
         data = response.get_json()
         self.assertEqual(len(data['shopcart_lists']), 2)
 
-    def test_list_all_shopcarts_of_a_customer(self):
+    def test_list_all_shopcarts_of_a_customer_with_cart(self):
         """ It should read all shopcarts of a customer"""
         self.app.post(f"/shopcarts/{CUSTOMER_ID}")
         self.app.post(f"/shopcarts/{CUSTOMER_ID}/12")
@@ -217,6 +217,11 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data['customer_id'], CUSTOMER_ID)
         self.assertEqual(len(data['shopcarts']), 1)
         self.assertEqual(len(data['shopcarts'][0]['items']), 2)
+
+    def test_list_all_shopcarts_of_a_customer_without_cart(self):
+        """ It should throw an error on trying get the shopcarts of a customer without a cart"""
+        response = self.app.get('/shopcarts/0')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # TEST CASES TO COVER STATUS CODE
 
