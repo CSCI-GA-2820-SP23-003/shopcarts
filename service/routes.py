@@ -27,13 +27,14 @@ def index():
 
 
 ######################################################################
-#  R E S T   A P I   E N D P O I N T S
+#  SHOPCART   A P I   E N D P O I N T S
 ######################################################################
 
-# Place your REST API code here ...
-######################################################################
+
+# -----------------------------------------------------------
 # LIST ALL Shopcarts
-######################################################################
+# -----------------------------------------------------------
+
 @app.route("/shopcarts", methods=['GET'])
 def list_shopcarts():
     """
@@ -64,9 +65,9 @@ def list_shopcarts():
     res['shopcart_lists'] = shopcart_list
     return jsonify(res), status.HTTP_200_OK
 
-######################################################################
+# -----------------------------------------------------------
 # Create a Shopcart
-######################################################################
+# -----------------------------------------------------------
 
 
 @app.route("/shopcarts/<customer_id>", methods=["POST"])
@@ -99,8 +100,61 @@ def add_shopcart(customer_id):
         jsonify({'customer_id': customer_id}),
         status.HTTP_201_CREATED
     )
+
 # -----------------------------------------------------------
-# Create counters
+# LIST ALL SHOPCARTS OF A CUSTOMER
+# -----------------------------------------------------------
+
+
+@app.route("/shopcarts/<int:customer_id>", methods=['GET'])
+def list_all_shopcarts_of_a_customer(customer_id):
+    """
+    Retrieve all the shopcarts of a customer
+    Args:
+        customer_id (int): the id of the customer
+    Returns:
+        customer_id (int): id of the customer who owns the shopcart
+        carts (list): list of all their carts
+            cart (list): list of all items in their cart
+                item_id (int): product id
+                quantity (int): number of the product in the cart
+    """
+
+    app.logger.info("Request for shopcarts of customer with id: %s", customer_id)
+    results = ShopCarts.find_by_customer_id(customer_id)
+
+    shopcarts = {}
+    items = []
+
+    for record in results:
+        current_item = record.serialize()
+        item = {
+            'item_id': current_item['product_id'],
+            'quantity': current_item['quantities']
+        }
+        items.append(item)
+
+    cart = {}
+    cart['items'] = items
+
+    shopcarts['customer_id'] = customer_id
+    shopcarts['shopcarts'] = [cart]
+
+    app.logger.info(
+        "Returning %d carts of customer %d", len(shopcarts['shopcarts']),
+        customer_id
+    )
+
+    return jsonify(shopcarts), status.HTTP_200_OK
+
+
+######################################################################
+#  ITEM   A P I   E N D P O I N T S
+######################################################################
+
+
+# -----------------------------------------------------------
+# Add an item to the cart
 # -----------------------------------------------------------
 
 
@@ -137,9 +191,9 @@ def add_item(customer_id, item_id):
         status.HTTP_201_CREATED
     )
 
-######################################################################
+# -----------------------------------------------------------
 # LIST ALL ITEMS IN A SHOPCART
-######################################################################
+# -----------------------------------------------------------
 
 
 @ app.route("/shopcarts/<int:customer_id>/items", methods=['GET'])
@@ -165,8 +219,6 @@ def list_shopcart_items(customer_id):
 
     for record in results:
         current_item = record.serialize()
-        if current_item['product_id'] == -1:
-            continue
         item = {
             'item_id': current_item['product_id'],
             'quantity': current_item['quantities'],
@@ -250,14 +302,12 @@ def delete_shopcart_item(customer_id, product_id):
 
     return "", status.HTTP_204_NO_CONTENT
 
-#####################################################################
+# -----------------------------------------------------------
 # READ AN ITEM FROM A SHOPCART
-######################################################################
-
+# -----------------------------------------------------------
 
 
 @ app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
-
 def get_item(customer_id, product_id):
     """
     Read an item from a shopcart

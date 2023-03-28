@@ -117,9 +117,9 @@ class ShopCarts(db.Model):
 
     @classmethod
     def find_by_customer_id(cls, customer_id):
-        """ Finds a ShopCarts by customer id """
+        """ Finds all ShopCart item entries by customer id """
         logger.info("Processing lookup for customer id %d ...", customer_id)
-        return cls.query.filter(cls.customer_id == customer_id).all()
+        return cls.query.filter(cls.customer_id == customer_id, cls.product_id != -1).all()
 
     @classmethod
     def find_by_customer_id_and_product_id(cls, customer_id, product_id):
