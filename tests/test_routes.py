@@ -85,29 +85,31 @@ class TestShopCartsServer(TestCase):
     # TEST CASES FOR READ ITEMS OF A SHOPCART
     def test_read_shopcart_items(self):
         """ It should read all items in a shopcart given customer ID """
+        
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/21")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/22")
 
-        records = ShopCartsFactory.create_batch(2)
-        for item in records:
-            item.create()
-
-        customer_id = records[0].customer_id
-        count_items = len(
-            [item for item in records if item.customer_id == customer_id])
-
-        response = self.app.get(f'/shopcarts/{customer_id}/items')
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.get_json()
-        self.assertEqual(data['customer_id'], customer_id)
-        self.assertEqual(len(data['items']), count_items)
+        self.assertEqual(data['customer_id'], CUSTOMER_ID)
+        self.assertEqual(len(data['items']), 2)
 
     def test_read_empty_shopcart(self):
         """ It should return no items if the shopcart is empty """
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}")
         response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data['customer_id'], CUSTOMER_ID)
         self.assertEqual(len(data['items']), 0)
+
+    def test_read_items_of_nonexistent_customer(self):
+        """ It should return a 404 when trying to get all items of nonexistent customer """
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""
