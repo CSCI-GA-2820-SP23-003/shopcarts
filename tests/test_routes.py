@@ -85,7 +85,6 @@ class TestShopCartsServer(TestCase):
     # TEST CASES FOR READ ITEMS OF A SHOPCART
     def test_read_shopcart_items(self):
         """ It should read all items in a shopcart given customer ID """
-        
         self.app.post(f"/shopcarts/{CUSTOMER_ID}")
         self.app.post(f"/shopcarts/{CUSTOMER_ID}/21")
         self.app.post(f"/shopcarts/{CUSTOMER_ID}/22")
