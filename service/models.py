@@ -140,3 +140,13 @@ class ShopCarts(db.Model):
         """ Returns all of the ShopCarts in the database """
         logger.info("Processing all unique ShopCarts")
         return cls.query.filter(cls.product_id == -1).all()
+
+    @classmethod
+    def clear_cart(cls, customer_id, delete_cart=False):
+        """ Deletes a shopcarts or clears a cart based on customer id """
+        logger.info("Deleting [%s] cart for customer id %d ...", delete_cart, customer_id)
+        del_q = cls.__table__.delete().where(cls.customer_id == customer_id)
+        if not delete_cart:
+            del_q = cls.__table__.delete().where(cls.customer_id == customer_id, cls.product_id != -1)
+        db.session.execute(del_q)
+        db.session.commit()

@@ -153,6 +153,22 @@ def list_all_shopcarts_of_a_customer(customer_id):
 
     return jsonify(shopcarts), status.HTTP_200_OK
 
+# -----------------------------------------------------------
+# DELETE SHOPCART OF A CUSTOMER
+# -----------------------------------------------------------
+
+
+@app.route("/shopcarts/<int:customer_id>", methods=['DELETE'])
+def delete_shopcart(customer_id):
+    """
+    Delete the shopcart of a customer
+    """
+
+    app.logger.info("delete shopcart of customer with id: %s", customer_id)
+    ShopCarts.clear_cart(customer_id, delete_cart=True)
+
+    return "", status.HTTP_204_NO_CONTENT
+
 
 ######################################################################
 #  ITEM   A P I   E N D P O I N T S
