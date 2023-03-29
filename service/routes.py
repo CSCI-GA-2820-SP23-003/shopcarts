@@ -76,7 +76,7 @@ def add_shopcart(customer_id):
     Args:
         customer_id (int): the id of the customer and item to add for it
     Returns:
-        dict: the row entry in databse which contains shopcart_id, customer_id
+        dict: the row entry in database which contains shopcart_id, customer_id
     """
     app.logger.info(
         f"Request to create a shopcart for customer {customer_id}")
@@ -218,6 +218,12 @@ def list_shopcart_items(customer_id):
 
     app.logger.info(
         "Request for shopcart items of customer with id: %s", customer_id)
+
+    if not ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.error(f"Customer {customer_id} does not have a cart")
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Customer {customer_id} does not have a cart")
+
     results = ShopCarts.find_by_customer_id(customer_id)
 
     shopcart_list = {}
@@ -228,8 +234,6 @@ def list_shopcart_items(customer_id):
         item = {
             'item_id': current_item['product_id'],
             'quantity': current_item['quantities'],
-            # 'shopcart_record_id': current_item['id']
-            # will return price after integrating with product
         }
         items.append(item)
 
@@ -237,8 +241,7 @@ def list_shopcart_items(customer_id):
     shopcart_list['items'] = items
 
     app.logger.info(
-        "Returning %d items of customer %d", len(shopcart_list['items']),
-        shopcart_list['customer_id']
+        "Returning %d items of customer %d", len(shopcart_list['items']), customer_id
     )
 
     return jsonify(shopcart_list), status.HTTP_200_OK
