@@ -232,3 +232,43 @@ class TestShopCartsModel(unittest.TestCase):
 
         all_shopcarts = ShopCarts.all_shopcarts()
         self.assertEqual(len(all_shopcarts), 1)
+
+    def test_clear_shopcart_delete_false(self):
+        """Test clear shopcart"""
+        shop_cart = ShopCartsFactory()
+        shop_cart.product_id = -1
+        shop_cart_item = ShopCartsFactory()
+        customer_id = shop_cart.customer_id
+        shop_cart_item.product_id = 1
+        shop_cart_item.customer_id = customer_id
+        shop_cart.create()
+        shop_cart_item.create()
+
+        item_count = ShopCarts.find_by_customer_id(customer_id)
+        self.assertEqual(len(item_count), 1)
+        self.assertTrue(ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1))
+
+        ShopCarts.clear_cart(customer_id, delete_cart=False)
+
+        item_count = ShopCarts.find_by_customer_id(customer_id)
+        self.assertEqual(len(item_count), 0)
+        self.assertTrue(ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1))
+
+    def test_clear_shopcart_delete_true(self):
+        """Test clear shopcart"""
+        shop_cart = ShopCartsFactory()
+        shop_cart.product_id = -1
+        shop_cart_item = ShopCartsFactory()
+        customer_id = shop_cart.customer_id
+        shop_cart_item.product_id = 1
+        shop_cart_item.customer_id = customer_id
+        shop_cart.create()
+        shop_cart_item.create()
+
+        items = ShopCarts.find_by_customer_id(customer_id)
+        self.assertEqual(len(items), 1)
+        self.assertTrue(ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1))
+
+        ShopCarts.clear_cart(customer_id, delete_cart=True)
+
+        self.assertFalse(ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1))

@@ -10,7 +10,6 @@ from service import app
 from service.models import db, ShopCarts
 from service.common import status  # HTTP Status Codes
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
-from .shop_cart_factory import ShopCartsFactory
 
 ######################################################################
 #  T E S T   C A S E S
@@ -223,6 +222,20 @@ class TestShopCartsServer(TestCase):
         """ It should throw an error on trying get the shopcarts of a customer without a cart"""
         response = self.app.get('/shopcarts/0')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_shopcart_of_a_customer_with_cart(self):
+        """ It should delete a customer's shopcart along with all the items in it"""
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/2")
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/3")
+
+        response = self.app.delete(f'/shopcarts/{CUSTOMER_ID}')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_shopcart_of_a_customer_with_no_cart(self):
+        """ It should delete a customer's shopcart along with all the items in it"""
+        response = self.app.delete('/shopcarts/0')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     # TEST CASES TO COVER STATUS CODE
 
