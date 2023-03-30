@@ -1,11 +1,11 @@
 import factory
-from service.models import ShopCarts
+from service.models import ShopCart
 
 
 class ShopCartsFactory(factory.Factory):
     """Create fake shop cart records"""
     class Meta:
-        model = ShopCarts
+        model = ShopCart
     id = factory.Sequence(lambda n: n)
     customer_id = factory.Sequence(lambda n: n)
     product_id = factory.Sequence(lambda n: n)

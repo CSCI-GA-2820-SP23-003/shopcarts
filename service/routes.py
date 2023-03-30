@@ -7,7 +7,7 @@ Describe what your service does here
 import logging
 from flask import jsonify, abort
 from service.common import status  # HTTP Status Codes
-from service.models import ShopCarts
+from service.models import ShopCart
 # Import Flask application
 from . import app
 
@@ -47,7 +47,7 @@ def list_shopcarts():
     """
 
     app.logger.info("Request for all shopcart")
-    results = ShopCarts.all_shopcarts()
+    results = ShopCart.all_shopcarts()
 
     res = {}
     shopcart_list = []
@@ -86,14 +86,14 @@ def add_shopcart(customer_id):
 
     customer_id = int(customer_id)
 
-    if ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+    if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.info(
             f"Customer {customer_id} shopcart already exists")
         abort(status.HTTP_409_CONFLICT,
               f"Customer {customer_id} shopcart already exists")
 
-    shopcart = ShopCarts(customer_id=customer_id,
-                         product_id=-1, quantities=1)
+    shopcart = ShopCart(customer_id=customer_id,
+                        product_id=-1, quantities=1)
     shopcart.create()
     logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
     return (
@@ -120,14 +120,15 @@ def list_all_shopcarts_of_a_customer(customer_id):
                 quantity (int): number of the product in the cart
     """
 
-    app.logger.info("Request for shopcarts of customer with id: %s", customer_id)
+    app.logger.info(
+        "Request for shopcarts of customer with id: %s", customer_id)
 
-    if not ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+    if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.error(f"Customer {customer_id} does not have a cart")
         abort(status.HTTP_404_NOT_FOUND,
               f"Customer {customer_id} does not have a cart")
 
-    results = ShopCarts.find_by_customer_id(customer_id)
+    results = ShopCart.find_by_customer_id(customer_id)
 
     shopcarts = {}
     items = []
@@ -165,7 +166,7 @@ def delete_shopcart(customer_id):
     """
 
     app.logger.info("delete shopcart of customer with id: %s", customer_id)
-    ShopCarts.clear_cart(customer_id, delete_cart=True)
+    ShopCart.clear_cart(customer_id, delete_cart=True)
 
     return "", status.HTTP_204_NO_CONTENT
 
@@ -198,14 +199,14 @@ def add_item(customer_id, item_id):
     customer_id = int(customer_id)
     item_id = int(item_id)
 
-    if ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, item_id):
+    if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
         logger.info(
             f"Customer {customer_id} and coresponding ietm {item_id} already exists")
         abort(status.HTTP_409_CONFLICT,
               f"Customer {customer_id} and coresponding ietm {item_id} already exists")
 
-    shopcart = ShopCarts(customer_id=customer_id,
-                         product_id=item_id, quantities=1)
+    shopcart = ShopCart(customer_id=customer_id,
+                        product_id=item_id, quantities=1)
     shopcart.create()
     logger.info(f"Added item {item_id} for customer {customer_id} sucessfully")
     return (
@@ -235,12 +236,12 @@ def list_shopcart_items(customer_id):
     app.logger.info(
         "Request for shopcart items of customer with id: %s", customer_id)
 
-    if not ShopCarts.check_exist_by_customer_id_and_product_id(customer_id, -1):
+    if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.error(f"Customer {customer_id} does not have a cart")
         abort(status.HTTP_404_NOT_FOUND,
               f"Customer {customer_id} does not have a cart")
 
-    results = ShopCarts.find_by_customer_id(customer_id)
+    results = ShopCart.find_by_customer_id(customer_id)
 
     shopcart_list = {}
     items = []
@@ -257,7 +258,8 @@ def list_shopcart_items(customer_id):
     shopcart_list['items'] = items
 
     app.logger.info(
-        "Returning %d items of customer %d", len(shopcart_list['items']), customer_id
+        "Returning %d items of customer %d", len(
+            shopcart_list['items']), customer_id
     )
 
     return jsonify(shopcart_list), status.HTTP_200_OK
@@ -283,7 +285,7 @@ def update_shopcart_item(customer_id, product_id, quantity):
         abort(status.HTTP_400_BAD_REQUEST,
               f"Quantity to be updated [{quantity}] should be positive!")
 
-    shopcart_item = ShopCarts.find_by_customer_id_and_product_id(
+    shopcart_item = ShopCart.find_by_customer_id_and_product_id(
         customer_id, product_id)
 
     if not shopcart_item:
@@ -312,7 +314,7 @@ def delete_shopcart_item(customer_id, product_id):
     product_id = int(product_id)
     customer_id = int(customer_id)
 
-    shopcart_item = ShopCarts.find_by_customer_id_and_product_id(
+    shopcart_item = ShopCart.find_by_customer_id_and_product_id(
         customer_id, product_id)
 
     if shopcart_item is not None:
@@ -335,7 +337,7 @@ def get_item(customer_id, product_id):
     app.logger.info(
         f"Request to read an Item-{product_id} from Customer-{customer_id} 's shopcart")
     # Read an item with item_id
-    result = ShopCarts.find_by_customer_id_and_product_id(
+    result = ShopCart.find_by_customer_id_and_product_id(
         customer_id, product_id)
     if result is not None:
         return jsonify(result.serialize()), status.HTTP_200_OK

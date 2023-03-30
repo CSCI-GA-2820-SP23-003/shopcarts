@@ -16,16 +16,16 @@ db = SQLAlchemy()
 # Function to initialize the database
 def init_db(app):
     """ Initializes the SQLAlchemy app """
-    ShopCarts.init_db(app)
+    ShopCart.init_db(app)
 
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
 
-class ShopCarts(db.Model):
+class ShopCart(db.Model):
     """
-    Class that represents a ShopCarts
+    Class that represents a ShopCart
     """
     app = None
     # Table Schema
@@ -38,7 +38,7 @@ class ShopCarts(db.Model):
     # price = db.Column(db.Numeric(10, 2))
 
     def __repr__(self):
-        return f"<ShopCarts customer_id=[{self.customer_id}] product_id=[{self.product_id}] quantities=[{self.quantities}]>"
+        return f"<ShopCart customer_id=[{self.customer_id}] product_id=[{self.product_id}] quantities=[{self.quantities}]>"
 
     def create(self):
         """
@@ -143,10 +143,12 @@ class ShopCarts(db.Model):
 
     @classmethod
     def clear_cart(cls, customer_id, delete_cart=False):
-        """ Deletes a shopcarts or clears a cart based on customer id """
-        logger.info("Deleting [%s] cart for customer id %d ...", delete_cart, customer_id)
+        """ Deletes a shopcart or clears a cart based on customer id """
+        logger.info(
+            "Deleting [%s] cart for customer id %d ...", delete_cart, customer_id)
         del_q = cls.__table__.delete().where(cls.customer_id == customer_id)
         if not delete_cart:
-            del_q = cls.__table__.delete().where(cls.customer_id == customer_id, cls.product_id != -1)
+            del_q = cls.__table__.delete().where(
+                cls.customer_id == customer_id, cls.product_id != -1)
         db.session.execute(del_q)
         db.session.commit()
