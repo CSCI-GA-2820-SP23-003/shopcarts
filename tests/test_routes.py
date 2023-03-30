@@ -7,7 +7,7 @@ Test cases can be run with the following:
 """
 from unittest import TestCase
 from service import app
-from service.models import db, ShopCarts
+from service.models import db, ShopCart
 from service.common import status  # HTTP Status Codes
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 
@@ -29,7 +29,7 @@ class TestShopCartsServer(TestCase):
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = SQLALCHEMY_TRACK_MODIFICATIONS
-        ShopCarts.init_db(app)
+        ShopCart.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
@@ -39,7 +39,7 @@ class TestShopCartsServer(TestCase):
     def setUp(self):
         """ This runs before each test """
         self.app = app.test_client()
-        db.session.query(ShopCarts).delete()  # clean up the last tests
+        db.session.query(ShopCart).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -47,7 +47,7 @@ class TestShopCartsServer(TestCase):
         db.session.remove()
 
     def _add_new_shopcart_item(self):
-        shopcart = ShopCarts(customer_id=0, product_id=0, quantities=1)
+        shopcart = ShopCart(customer_id=0, product_id=0, quantities=1)
         shopcart.create()
         return shopcart
 
