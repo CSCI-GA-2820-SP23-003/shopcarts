@@ -104,7 +104,7 @@ def add_shopcart():
                         product_id=-1, quantities=1)
     shopcart.create()
     # message = shopcart.serialize()
-    location_url = url_for("list_all_shopcarts_of_a_customer", customer_id = customer_id, _external=True)
+    location_url = url_for("list_all_shopcarts_of_a_customer", customer_id=customer_id, _external=True)
     logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
     return (
         jsonify({'customer_id': customer_id}),
@@ -205,14 +205,19 @@ def add_item(customer_id):
     shopcart = ShopCart()
     shopcart.deserialize(request.get_json())
 
-    customer_id = shopcart.customer_id
+    # customer_id = shopcart.customer_id
     item_id = shopcart.product_id
     quantities = shopcart.quantities
 
     app.logger.info(
         f"Request to add item for customer {customer_id} and item {item_id}")
 
-    if customer_id is None or item_id is None or quantities is None or not customer_id.isdigit() or not item_id.isdigit() or not quantities.isdigit():
+    if (
+        customer_id is None or item_id is None or
+        quantities is None or not customer_id.isdigit() or
+        not item_id.isdigit() or not quantities.isdigit() or
+        customer_id != shopcart.customer_id
+    ):
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id} {item_id}")
 
@@ -290,7 +295,7 @@ def list_shopcart_items(customer_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["PUT"]) #TODO
+@ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["PUT"])
 def update_shopcart_item(customer_id, product_id):
     """Updates the quantity of an existing product"""
     app.logger.info(
@@ -324,9 +329,7 @@ def update_shopcart_item(customer_id, product_id):
             f"Quantity to be updated [{new_quantity}] should be positive!")
         abort(status.HTTP_400_BAD_REQUEST,
               f"Quantity to be updated [{new_quantity}] should be positive!")
-    
-    # shopcart_item.customer_id = customer_id
-    # shopcart_item.product_id = product_id
+
     shopcart_item.quantities = new_quantity
 
     shopcart_item.update()

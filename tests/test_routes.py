@@ -98,7 +98,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
 #     # TEST CASES FOR READ ITEMS OF A SHOPCART
-    def test_read_shopcart_items(self): 
+    def test_read_shopcart_items(self):
         """ It should read all items in a shopcart given customer ID """
         self._add_new_shopcart(CUSTOMER_ID)
         self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID)
@@ -149,10 +149,10 @@ class TestShopCartsServer(TestCase):
         resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=test_shopcart_item.serialize())
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_item_quantity_non_existent(self): #
+    def test_update_item_quantity_non_existent(self):
         """ It should give an error on trying to update a non-existent product in the customer's cart"""
         self._add_new_shopcart(CUSTOMER_ID)
-        nonexistent_item  = ShopCart(customer_id=CUSTOMER_ID, product_id=ITEM_ID, quantities=10)
+        nonexistent_item = ShopCart(customer_id=CUSTOMER_ID, product_id=ITEM_ID, quantities=10)
         resp = self.app.put(
             f"/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=nonexistent_item.serialize())
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -193,8 +193,7 @@ class TestShopCartsServer(TestCase):
 
     def test_add_shopcart(self):
         """ It should Create a shopcart in database"""
-        test_shopcart = ShopCart(customer_id="1",
-                        product_id="-1", quantities="1")
+        test_shopcart = ShopCart(customer_id="1", product_id="-1", quantities="1")
 
         resp = self.app.post("/shopcarts", json=test_shopcart.serialize())
 
@@ -206,14 +205,13 @@ class TestShopCartsServer(TestCase):
         """ It should raise error since there is a shopcart in DB"""
         self._add_new_shopcart(CUSTOMER_ID)
 
-        duplicate_cart = ShopCart(customer_id=str(CUSTOMER_ID),
-                        product_id="-1", quantities="1")
+        duplicate_cart = ShopCart(customer_id=str(CUSTOMER_ID), product_id="-1", quantities="1")
         resp = self.app.post("/shopcarts", json=duplicate_cart.serialize())
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_add_shopcart_with_wrong_customer_id(self):
         """ It should raise error since there is a shopcart in DB"""
-        test_shopcart_1 = ShopCart(customer_id="_",product_id="-1", quantities="1")
+        test_shopcart_1 = ShopCart(customer_id="_", product_id="-1", quantities="1")
         resp = self.app.post("/shopcarts", json=test_shopcart_1.serialize())
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
