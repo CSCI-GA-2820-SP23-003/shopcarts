@@ -265,3 +265,18 @@ class TestShopCartsServer(TestCase):
         """ It should throw 405 error on trying to post to a GET API """
         resp = self.app.put("/")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_shopcart_no_content_type(self):
+        """It should not create a Shopcart with no content type"""
+        response = self.app.post('/shopcarts')
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_create_shopcart_no_data(self):
+        """It should not Create a shopcart with missing data"""
+        response = self.app.post('/shopcarts', json={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_shopcart_wrong_data(self):
+        """It should not Create a shopcart with wrong data"""
+        response = self.app.post('/shopcarts', data="abc", content_type="text/html")
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
