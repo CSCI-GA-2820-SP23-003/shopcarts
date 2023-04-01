@@ -319,18 +319,12 @@ def update_shopcart_item(customer_id, product_id):
     new_quantity = ShopCart().deserialize(request.get_json()).quantities
     # quantity = req_item.quantities
 
-    if not new_quantity.isdigit():
-        app.logger.error("Quantity to be updated must be a number!")
-        abort(status.HTTP_400_BAD_REQUEST, f"Quantity [{new_quantity}] is not valid.")
-
-    new_quantity = int(new_quantity)
-    if new_quantity <= 0:
-        app.logger.error(
-            f"Quantity to be updated [{new_quantity}] should be positive!")
+    if not new_quantity.lstrip('-').isdigit() or int(new_quantity) <= 0:
+        app.logger.error("Quantity to be updated must be a valid number!")
         abort(status.HTTP_400_BAD_REQUEST,
               f"Quantity to be updated [{new_quantity}] should be positive!")
 
-    shopcart_item.quantities = new_quantity
+    shopcart_item.quantities = int(new_quantity)
 
     shopcart_item.update()
 
