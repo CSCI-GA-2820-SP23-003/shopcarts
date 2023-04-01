@@ -5,7 +5,7 @@ Describe what your service does here
 """
 
 import logging
-from flask import jsonify, abort
+from flask import jsonify, abort,request
 from service.common import status  # HTTP Status Codes
 from service.models import ShopCart
 # Import Flask application
@@ -190,14 +190,15 @@ def add_item(customer_id, item_id):
     Returns:
         dict: the row entry in databse which contains customer_id, item_id and quantity default to 1
     """
-    app.logger.info(
-        f"Request to add item for customer {customer_id} and item {item_id}")
+    app.logger.info(f"Request to add item for customer {customer_id} and item {item_id}")
+    
     if customer_id is None or item_id is None or not customer_id.isdigit() or not item_id.isdigit():
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id} {item_id}")
-
-    customer_id = int(customer_id)
-    item_id = int(item_id)
+        
+    if(not ShopCart.check_exist_by_customer_id_and_product_id(customer_id,-1)):
+        logger.info(f"Customer {customer_id} does not have any cart")
+        abort(status.HTTP_409_CONFLICT, f"Customer {customer_id} does not have any cart")
 
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
         logger.info(
@@ -348,3 +349,26 @@ def get_item(customer_id, product_id):
             f"Customer {customer_id} and corresponding item {product_id} could not be found.")
         abort(status.HTTP_404_NOT_FOUND,
               f"Customer {customer_id} and corresponding item {product_id} could not be found.")
+        
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
+
+def check_content_type(content_type):
+    """Checks that the media type is correct"""
+    if "Content-Type" not in request.headers:
+        app.logger.error("No Content-Type specified.")
+        abort(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            f"Content-Type must be {content_type}",
+        )
+
+    if request.headers["Content-Type"] == content_type:
+        return
+
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {content_type}",
+    )
