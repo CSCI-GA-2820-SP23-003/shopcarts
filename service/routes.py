@@ -102,6 +102,50 @@ def add_shopcart(customer_id):
     )
 
 # -----------------------------------------------------------
+# Update a Shopcart
+# -----------------------------------------------------------
+
+
+@app.route("/shopcarts/<customer_id>", methods=["PUT"])
+def update_shopcart(customer_id):
+    """Creates a new shopcart with customer id
+    Args:
+        customer_id (int): the id of the customer and item to add for it
+    Returns:
+        dict: the row entry in database which contains shopcart_id, customer_id
+    """
+    app.logger.info(
+        f"Request to create a shopcart for customer {customer_id}")
+    if customer_id is None or not customer_id.isdigit():
+        abort(status.HTTP_400_BAD_REQUEST,
+              f"Bad request for {customer_id}")
+    check_content_type("application/json")
+    
+    customer_id = int(customer_id)
+
+    if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.info(
+            f"Customer {customer_id} has not created any shopcart")
+        abort(status.HTTP_409_CONFLICT,
+            f"Customer {customer_id} has not created any shopcart")
+
+    ShopCart.clear_cart(customer_id, delete_cart=False)
+    request_data = request.get_json()['items']
+    shopcart = ShopCart.find_by_customer_id(customer_id)
+    for item in request_data:
+        item['customer_id'] = customer_id
+        shopcart =  ShopCart()
+        shopcart.deserialize(item)
+        shopcart.create()
+        logger.info(f"Added item {item['product_id']} for customer {customer_id} sucessfully")
+
+    logger.info(f"Updated shopcart for customer {customer_id} sucessfully")
+    return (
+        jsonify({'customer_id': customer_id}),
+        status.HTTP_201_CREATED
+    )
+
+# -----------------------------------------------------------
 # LIST ALL SHOPCARTS OF A CUSTOMER
 # -----------------------------------------------------------
 
