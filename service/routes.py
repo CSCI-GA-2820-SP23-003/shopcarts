@@ -41,7 +41,6 @@ def list_shopcarts():
     Retrieve all shopcarts in DB
     This endpoint will return all the shopcart
     Args:
-
     Returns:
         customer_id (int): id of the customer who owns the shopcart
     """
@@ -73,10 +72,14 @@ def list_shopcarts():
 @app.route("/shopcarts", methods=["POST"])
 def add_shopcart():
     """Creates a new shopcart with customer id
-    Args:
-        customer_id (int): the id of the customer and item to add for it
+    Args: None
+    Request Body: JSON with customer_id (str): Customer ID of the customer to create shopcart for
     Returns:
-        dict: the row entry in database which contains shopcart_id, customer_id
+        JSON: the created empty shopcart of the customer
+            customer_id (int): id of the customer
+            shopcarts:
+                items (list): list of all items in shopcart
+        Header containing location url of the newly created shopcart for customer with ID=customer_id
     """
 
     check_content_type("application/json")
@@ -95,19 +98,25 @@ def add_shopcart():
     customer_id = int(customer_id)
 
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
-        logger.info(
-            f"Customer {customer_id} shopcart already exists")
+        logger.info(f"Customer {customer_id} shopcart already exists")
         abort(status.HTTP_409_CONFLICT,
               f"Customer {customer_id} shopcart already exists")
 
     shopcart = ShopCart(customer_id=customer_id,
                         product_id=-1, quantities=1)
     shopcart.create()
-    # message = shopcart.serialize()
+
     location_url = url_for("list_all_shopcarts_of_a_customer", customer_id=customer_id, _external=True)
     logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
     return (
-        jsonify({'customer_id': customer_id}),
+        jsonify({
+            'customer_id': customer_id, 
+            "shopcarts": [
+                {
+                    'items': []
+                }
+            ]
+        }),
         status.HTTP_201_CREATED,
         {"Location": location_url}
     )
@@ -197,7 +206,7 @@ def add_item(customer_id):
     """Creates a new entry and stores it in the database
     Args:
         customer_id (str): the id of the customer and item to add for it
-        item_id (str): the id of item to be added
+    Request Body: JSON wit item_id (str): the id of item to be added
     Returns:
         dict: the row entry in database which contains customer_id, item_id and quantity default to 1
     """
@@ -304,7 +313,6 @@ def update_shopcart_item(customer_id, product_id):
 
     product_id = int(product_id)
     customer_id = int(customer_id)
-    # quantity = int(quantity)
 
     shopcart_item = ShopCart.find_by_customer_id_and_product_id(
         customer_id, product_id)
@@ -315,9 +323,7 @@ def update_shopcart_item(customer_id, product_id):
         abort(status.HTTP_404_NOT_FOUND,
               f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
 
-    # req_item = ShopCart()
     new_quantity = ShopCart().deserialize(request.get_json()).quantities
-    # quantity = req_item.quantities
 
     if not new_quantity.lstrip('-').isdigit() or int(new_quantity) <= 0:
         app.logger.error("Quantity to be updated must be a valid number!")
