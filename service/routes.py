@@ -5,7 +5,7 @@ Describe what your service does here
 """
 
 import logging
-from flask import jsonify, abort
+from flask import jsonify, abort, request, url_for
 from service.common import status  # HTTP Status Codes
 from service.models import ShopCart
 # Import Flask application
@@ -41,7 +41,6 @@ def list_shopcarts():
     Retrieve all shopcarts in DB
     This endpoint will return all the shopcart
     Args:
-
     Returns:
         customer_id (int): id of the customer who owns the shopcart
     """
@@ -70,16 +69,28 @@ def list_shopcarts():
 # -----------------------------------------------------------
 
 
-@app.route("/shopcarts/<customer_id>", methods=["POST"])
-def add_shopcart(customer_id):
+@app.route("/shopcarts", methods=["POST"])
+def add_shopcart():
     """Creates a new shopcart with customer id
-    Args:
-        customer_id (int): the id of the customer and item to add for it
+    Args: None
+    Request Body: JSON with customer_id (str): Customer ID of the customer to create shopcart for
     Returns:
-        dict: the row entry in database which contains shopcart_id, customer_id
+        JSON: the created empty shopcart of the customer
+            customer_id (int): id of the customer
+            shopcarts:
+                items (list): list of all items in shopcart
+        Header containing location url of the newly created shopcart for customer with ID=customer_id
     """
+
+    check_content_type("application/json")
+    shopcart = ShopCart()
+    shopcart.deserialize(request.get_json())
+
+    customer_id = shopcart.customer_id
+
     app.logger.info(
         f"Request to create a shopcart for customer {customer_id}")
+
     if customer_id is None or not customer_id.isdigit():
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id}")
@@ -87,18 +98,27 @@ def add_shopcart(customer_id):
     customer_id = int(customer_id)
 
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
-        logger.info(
-            f"Customer {customer_id} shopcart already exists")
+        logger.info(f"Customer {customer_id} shopcart already exists")
         abort(status.HTTP_409_CONFLICT,
               f"Customer {customer_id} shopcart already exists")
 
     shopcart = ShopCart(customer_id=customer_id,
                         product_id=-1, quantities=1)
     shopcart.create()
+
+    location_url = url_for("list_all_shopcarts_of_a_customer", customer_id=customer_id, _external=True)
     logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
     return (
-        jsonify({'customer_id': customer_id}),
-        status.HTTP_201_CREATED
+        jsonify({
+            'customer_id': customer_id, 
+            "shopcarts": [
+                {
+                    'items': []
+                }
+            ]
+        }),
+        status.HTTP_201_CREATED,
+        {"Location": location_url}
     )
 
 # -----------------------------------------------------------
@@ -181,32 +201,47 @@ def delete_shopcart(customer_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<customer_id>/<item_id>", methods=["POST"])
-def add_item(customer_id, item_id):
+@ app.route("/shopcarts/<customer_id>/items", methods=["POST"])
+def add_item(customer_id):
     """Creates a new entry and stores it in the database
     Args:
         customer_id (str): the id of the customer and item to add for it
-        item_id (str): the id of item to be added
+    Request Body: JSON wit item_id (str): the id of item to be added
     Returns:
-        dict: the row entry in databse which contains customer_id, item_id and quantity default to 1
+        dict: the row entry in database which contains customer_id, item_id and quantity default to 1
     """
+    check_content_type("application/json")
+    shopcart = ShopCart()
+    shopcart.deserialize(request.get_json())
+
+    # customer_id = shopcart.customer_id
+    item_id = shopcart.product_id
+    quantities = shopcart.quantities
+
     app.logger.info(
         f"Request to add item for customer {customer_id} and item {item_id}")
-    if customer_id is None or item_id is None or not customer_id.isdigit() or not item_id.isdigit():
+
+    if (
+        customer_id is None or item_id is None or
+        quantities is None or not customer_id.isdigit() or
+        not item_id.isdigit() or not quantities.isdigit() or
+        customer_id != shopcart.customer_id
+    ):
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id} {item_id}")
 
     customer_id = int(customer_id)
     item_id = int(item_id)
+    quantities = int(quantities)
 
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
         logger.info(
-            f"Customer {customer_id} and coresponding ietm {item_id} already exists")
+            f"Customer {customer_id} and corresponding item {item_id} already exists")
         abort(status.HTTP_409_CONFLICT,
-              f"Customer {customer_id} and coresponding ietm {item_id} already exists")
+              f"Customer {customer_id} and corresponding item {item_id} already exists")
 
     shopcart = ShopCart(customer_id=customer_id,
-                        product_id=item_id, quantities=1)
+                        product_id=item_id, quantities=quantities)
     shopcart.create()
     logger.info(f"Added item {item_id} for customer {customer_id} sucessfully")
     return (
@@ -269,21 +304,15 @@ def list_shopcart_items(customer_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<int:customer_id>/<int:product_id>/<int:quantity>", methods=["PUT"])
-def update_shopcart_item(customer_id, product_id, quantity):
+@ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["PUT"])
+def update_shopcart_item(customer_id, product_id):
     """Updates the quantity of an existing product"""
     app.logger.info(
-        f"Update product-{product_id} in customer-{customer_id}'s cart to {quantity}")
+        f"Update quantity of product-{product_id} in customer-{customer_id}'s cart")
+    check_content_type("application/json")
 
     product_id = int(product_id)
     customer_id = int(customer_id)
-    quantity = int(quantity)
-
-    if quantity <= 0:
-        app.logger.error(
-            f"Quantity to be updated [{quantity}] should be positive!")
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Quantity to be updated [{quantity}] should be positive!")
 
     shopcart_item = ShopCart.find_by_customer_id_and_product_id(
         customer_id, product_id)
@@ -294,10 +323,19 @@ def update_shopcart_item(customer_id, product_id, quantity):
         abort(status.HTTP_404_NOT_FOUND,
               f"Product-{product_id} doesn't exist in the customer-{customer_id}'s cart!")
 
-    shopcart_item.quantities = quantity
+    new_quantity = ShopCart().deserialize(request.get_json()).quantities
+
+    if not new_quantity.lstrip('-').isdigit() or int(new_quantity) <= 0:
+        app.logger.error("Quantity to be updated must be a valid number!")
+        abort(status.HTTP_400_BAD_REQUEST,
+              f"Quantity to be updated [{new_quantity}] should be positive!")
+
+    shopcart_item.quantities = int(new_quantity)
+
     shopcart_item.update()
+
     app.logger.info(
-        f"Updated Product-{product_id} quantity to {quantity} in customer-{customer_id}'s cart!")
+        f"Updated Product-{product_id} quantity to {new_quantity} in customer-{customer_id}'s cart!")
 
     return jsonify(shopcart_item.serialize()), status.HTTP_200_OK
 
@@ -306,7 +344,7 @@ def update_shopcart_item(customer_id, product_id, quantity):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["DELETE"])
+@ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["DELETE"])
 def delete_shopcart_item(customer_id, product_id):
     """Deletes an existing product from cart"""
     app.logger.info(f"Delete product-{product_id} in customer-{customer_id}'s")
@@ -329,7 +367,7 @@ def delete_shopcart_item(customer_id, product_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<int:customer_id>/<int:product_id>", methods=["GET"])
+@ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["GET"])
 def get_item(customer_id, product_id):
     """
     Read an item from a shopcart
@@ -348,3 +386,26 @@ def get_item(customer_id, product_id):
             f"Customer {customer_id} and corresponding item {product_id} could not be found.")
         abort(status.HTTP_404_NOT_FOUND,
               f"Customer {customer_id} and corresponding item {product_id} could not be found.")
+
+
+######################################################################
+#  UTILITY FUNCTIONS
+######################################################################
+
+def check_content_type(content_type):
+    """Checks that the media type is correct"""
+    if "Content-Type" not in request.headers:
+        app.logger.error("No Content-Type specified.")
+        abort(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            f"Content-Type must be {content_type}",
+        )
+
+    if request.headers["Content-Type"] == content_type:
+        return
+
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {content_type}",
+    )
