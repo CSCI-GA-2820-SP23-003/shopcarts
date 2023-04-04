@@ -266,6 +266,19 @@ class TestShopCartsServer(TestCase):
         response = self.app.delete('/shopcarts/0')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_clear_shopcart_of_a_customer_with_cart(self):
+        """ It should clear a customer's shopcart but not delete it"""
+        self._add_new_shopcart(CUSTOMER_ID)
+        self._add_new_shopcart_item(CUSTOMER_ID, 1)
+        self._add_new_shopcart_item(CUSTOMER_ID, 2)
+        response = self.app.put(f'/shopcarts/{CUSTOMER_ID}/clear')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_clear_shopcart_of_a_customer_with_no_cart(self):
+        """ It should return 404 on trying to clear a cart of a customer with no cart"""
+        response = self.app.put('/shopcarts/0/clear')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     # TEST CASES TO COVER STATUS CODE
 
     def test_405_status_code(self):
