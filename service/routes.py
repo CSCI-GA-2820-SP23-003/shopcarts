@@ -154,7 +154,7 @@ def update_shopcart(customer_id):
     if request_data is None or len(request_data)==0:
         logger.info(
             f"No items are present in the request to update the shopcart of customer {customer_id}")
-        abort(status.HTTP_204_NO_CONTENT,
+        abort(status.HTTP_400_BAD_REQUEST,
             f"No items are present in the request to update the shopcart of customer {customer_id}")
     shopcart = ShopCart.find_by_customer_id(customer_id)
 

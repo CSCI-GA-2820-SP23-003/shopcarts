@@ -139,7 +139,6 @@ class TestShopCartsServer(TestCase):
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""
-
         self._add_new_shopcart(CUSTOMER_ID)
         test_shopcart_item = self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID)
         quantity = "10"
@@ -216,7 +215,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["customer_id"], 1)
 
     def test_update_shopcart(self):
-        """ It should Create a shopcart in database"""
+        """ It should update the shopcart in database"""
         self._add_new_shopcart(CUSTOMER_ID)
         
         items = []
@@ -235,6 +234,11 @@ class TestShopCartsServer(TestCase):
         items_list = data["items"]
         self.assertEqual(len(items_list), len(items))    
         self.assertEqual(data["customer_id"], 1)
+
+        shopcart_json['items'] = []
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+       
 
     def test_add_duplicate_shopcart(self):
         """ It should raise error since there is a shopcart in DB"""
