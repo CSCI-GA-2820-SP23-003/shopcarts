@@ -123,7 +123,7 @@ def add_shopcart():
 # Update a Shopcart
 # -----------------------------------------------------------
 
-@app.route("/shopcarts/<customer_id>", methods=["PUT"])
+@app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
 def update_shopcart(customer_id):
     """Updates shopcart with customer id
     Args:
@@ -133,12 +133,8 @@ def update_shopcart(customer_id):
     """
     app.logger.info(
         f"Request to create a shopcart for customer {customer_id}")
-    if customer_id is None or not customer_id.isdigit():
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     check_content_type("application/json")
     
-    customer_id = int(customer_id)
 
     if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.info(
@@ -195,9 +191,6 @@ def list_all_shopcarts_of_a_customer(customer_id):
                 item_id (int): product id
                 quantity (int): number of the product in the cart
     """
-    if customer_id is None or not customer_id.isdigit():
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     app.logger.info(
         "Request for shopcarts of customer with id: %s", customer_id)
 
@@ -242,9 +235,6 @@ def delete_shopcart(customer_id):
     """
     Delete the shopcart of a customer
     """
-    if customer_id is None or not customer_id.isdigit():
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     app.logger.info("delete shopcart of customer with id: %s", customer_id)
     ShopCart.clear_cart(customer_id, delete_cart=True)
 
@@ -261,7 +251,7 @@ def delete_shopcart(customer_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<customer_id>/items", methods=["POST"])
+@ app.route("/shopcarts/<int:customer_id>/items", methods=["POST"])
 def add_item(customer_id):
     """Creates a new entry and stores it in the database
     Args:
@@ -270,9 +260,6 @@ def add_item(customer_id):
     Returns:
         dict: the row entry in database which contains customer_id, item_id and quantity default to 1
     """
-    if customer_id is None or not customer_id.isdigit():
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     check_content_type("application/json")
     shopcart = ShopCart()
     shopcart.deserialize(request.get_json())
@@ -324,9 +311,6 @@ def list_shopcart_items(customer_id):
             item_id (int): product id
             quantity (int): number of the product in the cart
     """
-    if customer_id is None or not customer_id.isdigit():
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     app.logger.info(
         "Request for shopcart items of customer with id: %s", customer_id)
 
@@ -366,12 +350,6 @@ def list_shopcart_items(customer_id):
 @ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["PUT"])
 def update_shopcart_item(customer_id, product_id):
     """Updates the quantity of an existing product"""
-    if( customer_id is None or not customer_id.isdigit() or 
-        product_id is None or not product_id.isdigit()
-    ):
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
-    
     app.logger.info(
         f"Update quantity of product-{product_id} in customer-{customer_id}'s cart")
     check_content_type("application/json")
@@ -412,12 +390,6 @@ def update_shopcart_item(customer_id, product_id):
 @ app.route("/shopcarts/<int:customer_id>/items/<int:product_id>", methods=["DELETE"])
 def delete_shopcart_item(customer_id, product_id):
     """Deletes an existing product from cart"""
-    
-    if( customer_id is None or not customer_id.isdigit() or 
-        product_id is None or not product_id.isdigit()
-    ):
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     app.logger.info(f"Delete product-{product_id} in customer-{customer_id}'s")
 
     product_id = int(product_id)
@@ -443,11 +415,6 @@ def get_item(customer_id, product_id):
     """
     Read an item from a shopcart
     """
-    if( customer_id is None or not customer_id.isdigit() or 
-        product_id is None or not product_id.isdigit()
-    ):
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id}")
     app.logger.info(
         f"Request to read an Item-{product_id} from Customer-{customer_id} 's shopcart")
     # Read an item with item_id
