@@ -203,6 +203,30 @@ def delete_shopcart(customer_id):
 
     return "", status.HTTP_204_NO_CONTENT
 
+# -----------------------------------------------------------
+# CLEAR SHOPCART OF A CUSTOMER
+# -----------------------------------------------------------
+
+
+@app.route("/shopcarts/<int:customer_id>/clear", methods=['PUT'])
+def clear_shopcart(customer_id):
+    """
+    Clear the shopcart of a customer
+    """
+
+    app.logger.info("clear shopcart of customer with id: %s", customer_id)
+
+    if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.error(f"Customer {customer_id} does not have a cart")
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Customer {customer_id} does not have a cart")
+
+    ShopCart.clear_cart(customer_id, delete_cart=False)
+
+    response = {'customer_id': customer_id}
+
+    return jsonify(response), status.HTTP_200_OK
+
 
 ######################################################################
 #  ITEM   A P I   E N D P O I N T S
