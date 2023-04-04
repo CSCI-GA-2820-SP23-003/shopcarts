@@ -95,6 +95,7 @@ def add_shopcart():
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id}")
 
+    customer_id = int(customer_id)
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.info(f"Customer {customer_id} shopcart already exists")
         abort(status.HTTP_409_CONFLICT,
