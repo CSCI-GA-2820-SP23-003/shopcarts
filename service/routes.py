@@ -172,10 +172,14 @@ def update_shopcart(customer_id):
     shopcart = ShopCart.find_by_customer_id(customer_id)
 
     for item in request_data:
-        item['customer_id'] = customer_id
-        shopcart =  ShopCart()
-        shopcart.deserialize(item)
-        shopcart.create()
+        shopcart_item =  ShopCart()
+        shopcart_item.deserialize(item)
+        if shopcart_item.customer_id!=customer_id:
+            logger.info(
+                f"Customer {customer_id} is not consistent with request")
+            abort(status.HTTP_409_CONFLICT,
+                f"Customer {customer_id} is not consistent with request")
+        shopcart_item.create()
         logger.info(f"Added item {item['product_id']} for customer {customer_id} sucessfully")
         
     items = ShopCart.find_by_customer_id(customer_id)
@@ -312,7 +316,7 @@ def add_item(customer_id):
     if (item_id is None or quantities is None or
         int(customer_id) != shopcart.customer_id):
         abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {item_id} {quantities} {customer_id} {shopcart.customer_id} {item_id}")
+              f"Bad request for customer:{customer_id} & item:{item_id}")
         
     if(not ShopCart.check_exist_by_customer_id_and_product_id(customer_id,-1)):
         logger.info(f"Customer {customer_id} does not have any cart")
