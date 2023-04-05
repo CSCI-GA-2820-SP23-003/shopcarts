@@ -1,5 +1,5 @@
 """
-Models for ShopCarts
+Models for ShopCart
 
 All of the models are stored in this module
 """
@@ -42,9 +42,9 @@ class ShopCart(db.Model):
 
     def create(self):
         """
-        Creates a ShopCarts record to the database.
+        Creates a ShopCart record to the database.
         """
-        logger.info("Creating a ShopCarts record for customer %d with product %d quantities %d",
+        logger.info("Creating a ShopCart record for customer %d with product %d quantities %d",
                     self.customer_id, self.product_id, self.quantities)
         # self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
@@ -52,28 +52,28 @@ class ShopCart(db.Model):
 
     def update(self):
         """
-        Updates a ShopCarts record to the database
+        Updates a ShopCart record to the database
         """
         if not self.id:
-            raise DataValidationError("Don't exist current ShopCarts record.")
-        logger.info("Saving a ShopCarts record for customer %d with product %d quantities %d",
+            raise DataValidationError("Don't exist current ShopCart record.")
+        logger.info("Saving a ShopCart record for customer %d with product %d quantities %d",
                     self.customer_id, self.product_id, self.quantities)
         db.session.commit()
 
     def delete(self):
-        """ Removes a ShopCarts from the data store """
-        logger.info("Deleting a ShopCarts record for customer %d with product %d quantities %d",
+        """ Removes a ShopCart from the data store """
+        logger.info("Deleting a ShopCart record for customer %d with product %d quantities %d",
                     self.customer_id, self.product_id, self.quantities)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a ShopCarts into a dictionary """
+        """ Serializes a ShopCart into a dictionary """
         return {"id": self.id, "customer_id": self.customer_id, "product_id": self.product_id, "quantities": self.quantities}
 
     def deserialize(self, data):
         """
-        Deserializes a ShopCarts from a dictionary
+        Deserializes a ShopCart from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -84,11 +84,11 @@ class ShopCart(db.Model):
             self.quantities = data["quantities"]
         except KeyError as error:
             raise DataValidationError(
-                "Invalid ShopCarts: missing " + error.args[0]
+                "Invalid ShopCart: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid ShopCarts: body of request contained bad or no data - "
+                "Invalid ShopCart: body of request contained bad or no data - "
                 "Error message: " + error
             ) from error
         return self
@@ -105,8 +105,8 @@ class ShopCart(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the ShopCarts items record in the database """
-        logger.info("Processing all ShopCarts")
+        """ Returns all of the ShopCart items record in the database """
+        logger.info("Processing all ShopCart")
         return cls.query.all()
 
     @classmethod
@@ -123,22 +123,22 @@ class ShopCart(db.Model):
 
     @classmethod
     def find_by_customer_id_and_product_id(cls, customer_id, product_id):
-        """ Finds a ShopCarts by customer id and product id """
+        """ Finds a ShopCart by customer id and product id """
         logger.info(
             "Processing lookup for customer id %d and product id %d", customer_id, product_id)
         return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).first()
 
     @classmethod
     def check_exist_by_customer_id_and_product_id(cls, customer_id, product_id):
-        """ check if this ShopCarts record is exists by customer id and product id """
+        """ check if this ShopCart record is exists by customer id and product id """
         logger.info(
             "Checking record with customer id %d and product id %d", customer_id, product_id)
         return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).count() != 0
 
     @classmethod
     def all_shopcarts(cls):
-        """ Returns all of the ShopCarts in the database """
-        logger.info("Processing all unique ShopCarts")
+        """ Returns all of the ShopCart in the database """
+        logger.info("Processing all unique ShopCart")
         return cls.query.filter(cls.product_id == -1).all()
 
     @classmethod

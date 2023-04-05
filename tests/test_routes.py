@@ -5,12 +5,14 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+import random
 from unittest import TestCase
+from flask import jsonify
 from service import app
 from service.models import db, ShopCart
 from service.common import status  # HTTP Status Codes
 from service.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
-
+from tests.shop_cart_factory import ShopCartsFactory
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -26,7 +28,7 @@ class TestShopCartsServer(TestCase):
     def setUpClass(cls):
         """ This runs once before the entire test suite """
         app.config["TESTING"] = True
-        app.config["DEBUG"] = False
+        app.config["DEBUG"] = True
         app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = SQLALCHEMY_TRACK_MODIFICATIONS
         ShopCart.init_db(app)
@@ -79,30 +81,61 @@ class TestShopCartsServer(TestCase):
         """ It should Create a entry in database for given customer id and item_id combination"""
         self._add_new_shopcart(CUSTOMER_ID)
 
-        test_shopcart_item = ShopCart(customer_id=str(CUSTOMER_ID), product_id=str(ITEM_ID), quantities="1")
-        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=test_shopcart_item.serialize())
+        shopcart = ShopCartsFactory()
+        shopcart_json = ShopCart.serialize(shopcart)
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['product_id'] = ITEM_ID
+        shopcart_json['quantities'] = abs(shopcart_json['quantities'])
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
-        self.assertEqual(data["customer_id"], 1)
-        self.assertEqual(data["product_id"], 1)
-        self.assertEqual(data["quantities"], 1)
+        self.assertEqual(data["customer_id"], CUSTOMER_ID)
+        self.assertEqual(data["product_id"], ITEM_ID)
+        self.assertEqual(data["quantities"], abs(shopcart_json['quantities']))
+    
+    def test_add_item_with_wrong_customer_id(self):
+        """ It should detect inconsitency/incorrect customer id provided in request body to that present in the url"""
+        self._add_new_shopcart(CUSTOMER_ID)
 
-        test_shopcart_bad = ShopCart(customer_id="_", product_id="-1", quantities="1")
-        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=test_shopcart_bad.serialize())
+        shopcart = ShopCartsFactory()
+        shopcart_json = ShopCart.serialize(shopcart)
+        shopcart_json['customer_id'] = CUSTOMER_ID*10
+        shopcart_json['product_id'] = ITEM_ID
+        shopcart_json['quantities'] = abs(shopcart_json['quantities'])
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
+
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_add_item_for_nonexistent_customer(self):
+        """ It should give an error on trying to add a non-existent cart for the customer"""
+        shopcart = ShopCartsFactory()
+        shopcart_json = ShopCart.serialize(shopcart)
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['product_id'] = ITEM_ID
+        shopcart_json['quantities'] = abs(shopcart_json['quantities'])
+        resp = self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+    
     def test_item_already_exists(self):
         """ It should detect customer and item row already exists. so only update/delete requests will be accepted """
         self._add_new_shopcart(CUSTOMER_ID)
 
-        test_shopcart_item = ShopCart(customer_id=str(CUSTOMER_ID), product_id=str(ITEM_ID), quantities="1")
-        self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=test_shopcart_item.serialize())
+        shopcart = ShopCartsFactory()
+        shopcart_json = ShopCart.serialize(shopcart)
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['product_id'] = ITEM_ID
+        shopcart_json['quantities'] = abs(shopcart_json['quantities'])
+        self.app.post(f"/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
-        test_shopcart_item = ShopCart(customer_id=str(CUSTOMER_ID), product_id=str(ITEM_ID), quantities="1")
-        resp = self.app.post("/shopcarts/1/items", json=test_shopcart_item.serialize())
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['product_id'] = ITEM_ID
+        shopcart_json['quantities'] = abs(shopcart_json['quantities'])+10
+        resp = self.app.post("/shopcarts/1/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
 
 #     # TEST CASES FOR READ ITEMS OF A SHOPCART
     def test_read_shopcart_items(self):
@@ -134,7 +167,6 @@ class TestShopCartsServer(TestCase):
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""
-
         self._add_new_shopcart(CUSTOMER_ID)
         test_shopcart_item = self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID)
         quantity = "10"
@@ -200,13 +232,85 @@ class TestShopCartsServer(TestCase):
 
     def test_add_shopcart(self):
         """ It should Create a shopcart in database"""
-        test_shopcart = ShopCart(customer_id="1", product_id="-1", quantities="1")
-
-        resp = self.app.post("/shopcarts", json=test_shopcart.serialize())
+        shopcart = ShopCartsFactory()
+        shopcart_json = ShopCart.serialize(shopcart)
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['product_id'] = -1
+        resp = self.app.post("/shopcarts", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
         self.assertEqual(data["customer_id"], 1)
+
+    def test_update_shopcart(self):
+        """ It should update the shopcart in database"""
+        self._add_new_shopcart(CUSTOMER_ID)
+        
+        items = []
+        for i in range(10):
+            shopcart = ShopCartsFactory()
+            shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['customer_id'] = CUSTOMER_ID
+            shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
+            items.append(shopcart_item_json)
+        shopcart_json={}
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['items'] = items
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        items_list = data["items"]
+        self.assertEqual(len(items_list), len(items))    
+        self.assertEqual(data["customer_id"], 1)
+
+        shopcart_json['items'] = []
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_update_shopcart_of_a_customer_with_no_cart(self):        
+        items = []
+        for i in range(10):
+            shopcart = ShopCartsFactory()
+            shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['customer_id'] = CUSTOMER_ID
+            shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
+            items.append(shopcart_item_json)
+        shopcart_json={}
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['items'] = items
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_update_shopcart_of_a_customer_with_request_with_wrong_customer_id(self):        
+        self._add_new_shopcart(CUSTOMER_ID)
+        items = []
+        for i in range(10):
+            shopcart = ShopCartsFactory()
+            shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['customer_id'] = CUSTOMER_ID
+            shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
+            items.append(shopcart_item_json)
+        shopcart_json={}
+        shopcart_json['customer_id'] = CUSTOMER_ID*10
+        shopcart_json['items'] = items
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)   
+
+    def test_update_shopcart_of_a_customer_with_request_with_wrong_customer_id_in_request_body(self):        
+        self._add_new_shopcart(CUSTOMER_ID)
+        items = []
+        for i in range(10):
+            shopcart = ShopCartsFactory()
+            shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['customer_id'] = CUSTOMER_ID
+            shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
+            items.append(shopcart_item_json)
+        items[5]['customer_id'] = CUSTOMER_ID*10
+        shopcart_json={}
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['items'] = items
+        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json = shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)   
 
     def test_add_duplicate_shopcart(self):
         """ It should raise error since there is a shopcart in DB"""

@@ -104,12 +104,11 @@ def add_shopcart():
     app.logger.info(
         f"Request to create a shopcart for customer {customer_id}")
 
-    if customer_id is None or not customer_id.isdigit():
+    if customer_id is None or not str(customer_id).isdigit():
         abort(status.HTTP_400_BAD_REQUEST,
               f"Bad request for {customer_id}")
 
     customer_id = int(customer_id)
-
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
         logger.info(f"Customer {customer_id} shopcart already exists")
         abort(status.HTTP_409_CONFLICT,
@@ -135,6 +134,64 @@ def add_shopcart():
     )
 
 # -----------------------------------------------------------
+# Update a Shopcart
+# -----------------------------------------------------------
+
+@app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
+def update_shopcart(customer_id):
+    """Updates shopcart with customer id
+    Args:
+        customer_id (int): the id of the customer and item to add for it
+    Returns:
+        dict: the row entry in database which contains shopcart_id, customer_id
+    """
+    app.logger.info(
+        f"Request to create a shopcart for customer {customer_id}")
+    check_content_type("application/json")
+    
+
+    if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
+        logger.info(
+            f"Customer {customer_id} has not created any shopcart")
+        abort(status.HTTP_409_CONFLICT,
+            f"Customer {customer_id} has not created any shopcart")
+    data = request.get_json()
+    if customer_id!=int(data['customer_id']):
+        logger.info(
+            f"Customer {customer_id} is not consistent with request")
+        abort(status.HTTP_409_CONFLICT,
+            f"Customer {customer_id} is not consistent with request")
+        
+    ShopCart.clear_cart(customer_id, delete_cart=False)
+    request_data = data['items']
+    if request_data is None or len(request_data)==0:
+        logger.info(
+            f"No items are present in the request to update the shopcart of customer {customer_id}")
+        abort(status.HTTP_400_BAD_REQUEST,
+            f"No items are present in the request to update the shopcart of customer {customer_id}")
+    shopcart = ShopCart.find_by_customer_id(customer_id)
+
+    for item in request_data:
+        shopcart_item =  ShopCart()
+        shopcart_item.deserialize(item)
+        if shopcart_item.customer_id!=customer_id:
+            logger.info(
+                f"Customer {customer_id} is not consistent with request")
+            abort(status.HTTP_409_CONFLICT,
+                f"Customer {customer_id} is not consistent with request")
+        shopcart_item.create()
+        logger.info(f"Added item {item['product_id']} for customer {customer_id} sucessfully")
+        
+    items = ShopCart.find_by_customer_id(customer_id)
+    items_list = list(map(ShopCart.serialize, items))
+    logger.info(f"Updated shopcart for customer {customer_id} sucessfully")
+
+    return (
+        jsonify({'customer_id': customer_id, "items": items_list}),
+        status.HTTP_200_OK
+    )
+
+# -----------------------------------------------------------
 # LIST ALL SHOPCARTS OF A CUSTOMER
 # -----------------------------------------------------------
 
@@ -152,7 +209,6 @@ def list_all_shopcarts_of_a_customer(customer_id):
                 item_id (int): product id
                 quantity (int): number of the product in the cart
     """
-
     app.logger.info(
         "Request for shopcarts of customer with id: %s", customer_id)
 
@@ -197,7 +253,6 @@ def delete_shopcart(customer_id):
     """
     Delete the shopcart of a customer
     """
-
     app.logger.info("delete shopcart of customer with id: %s", customer_id)
     ShopCart.clear_cart(customer_id, delete_cart=True)
 
@@ -238,7 +293,7 @@ def clear_shopcart(customer_id):
 # -----------------------------------------------------------
 
 
-@ app.route("/shopcarts/<customer_id>/items", methods=["POST"])
+@ app.route("/shopcarts/<int:customer_id>/items", methods=["POST"])
 def add_item(customer_id):
     """Creates a new entry and stores it in the database
     Args:
@@ -258,18 +313,14 @@ def add_item(customer_id):
     app.logger.info(
         f"Request to add item for customer {customer_id} and item {item_id}")
 
-    if (
-        customer_id is None or item_id is None or
-        quantities is None or not customer_id.isdigit() or
-        not item_id.isdigit() or not quantities.isdigit() or
-        customer_id != shopcart.customer_id
-    ):
+    if (item_id is None or quantities is None or
+        int(customer_id) != shopcart.customer_id):
         abort(status.HTTP_400_BAD_REQUEST,
-              f"Bad request for {customer_id} {item_id}")
-
-    customer_id = int(customer_id)
-    item_id = int(item_id)
-    quantities = int(quantities)
+              f"Bad request for customer:{customer_id} & item:{item_id}")
+        
+    if(not ShopCart.check_exist_by_customer_id_and_product_id(customer_id,-1)):
+        logger.info(f"Customer {customer_id} does not have any cart")
+        abort(status.HTTP_409_CONFLICT, f"Customer {customer_id} does not have any cart")
 
     if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
         logger.info(
@@ -277,8 +328,6 @@ def add_item(customer_id):
         abort(status.HTTP_409_CONFLICT,
               f"Customer {customer_id} and corresponding item {item_id} already exists")
 
-    shopcart = ShopCart(customer_id=customer_id,
-                        product_id=item_id, quantities=quantities)
     shopcart.create()
     logger.info(f"Added item {item_id} for customer {customer_id} sucessfully")
     return (
@@ -304,7 +353,6 @@ def list_shopcart_items(customer_id):
             item_id (int): product id
             quantity (int): number of the product in the cart
     """
-
     app.logger.info(
         "Request for shopcart items of customer with id: %s", customer_id)
 
