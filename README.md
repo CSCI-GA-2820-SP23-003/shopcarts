@@ -45,14 +45,19 @@ nosetests -v --with-spec --spec-color
 
 | URL | Description | Return code |
 | -------- | -------- | -------- |
-| GET /shopcarts/ | Return all REST API name, all available paths | 200 |
-| GET /shopcarts/<int:customer_id>/items | Return all the items in customer<customer_id> shopcart lists| |
-| GET /shopcarts/<int:customer_id>/<int:product_id> | Return detail information about item<product_id> in customer<customer_id> shopcart| |
-| POST /shopcarts/<int:customer_id>/<int:product_id> | Create a shop cart item<product_id> for customer<customer_id> | |
+| GET / | Return all REST API name, all available paths | 200 |
+| GET /health | Return the health status | 200 |
+| GET /shopcarts | Retrieve all shopcarts of all customers | 200 |
+| POST /shopcarts | Creates a new shopcart for a customer given customer_id | 201, 409, 400|
+| GET /shopcarts/<int:customer_id> | Retrieve all the shopcarts of a customer<customer_id> | 200, 404 |
 | PUT /shopcarts/<int:customer_id> | Update a shop cart for customer<customer_id> | |
-| PUT /shopcarts/<int:customer_id>/<int:product_id>/<int:quantity> | Update a shop cart item<product_id> for customer<customer_id> | 200, 404 |
-| DELETE /shopcarts/<int:customer_id>/<int:product_id> | Delete a shop cart item<product_id> for customer<customer_id> | 200, 404 |
-| DELETE /shopcarts/<int:customer_id> | Delete all items for customer<customer_id> | |
+| DELETE /shopcarts/<int:customer_id> | Deletes the shopcart of customer<customer_id> | 204 |
+| GET /shopcarts/<int:customer_id>/items | Return all the items in customer<customer_id> shopcart lists| |
+| POST /shopcarts/<int:customer_id>/items | Adds a new item to the customer<customer_id>'s shopcart | 201, 400, 409 |
+| GET /shopcarts/<int:customer_id>/items/<int:product_id> | Return detail information about product<product_id> in customer<customer_id> shopcart| |
+| PUT /shopcarts/<int:customer_id>/items/<int:product_id> | Update a shop cart item<product_id> for customer<customer_id> | 200, 404 |
+| DELETE /shopcarts/<int:customer_id>/items/<int:product_id> | Delete a shop cart item<product_id> for customer<customer_id> | 200, 404 |
+| PUT /shopcarts/<int:customer_id>/clear | Clear the shopcart of customer<customer_id> | |
 
 
 ## License
