@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopcart
+spec:
+  selector:
+    app: shopcart
+  type: NodePort
+  internalTrafficPolicy: Local
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      nodePort: 31000
+      targetPort: 8080
