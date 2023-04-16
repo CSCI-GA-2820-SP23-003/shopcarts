@@ -164,7 +164,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_customer_shopcart_items_with_query(self):
-        """ ----------------------------It should only return those items which have the quantities in the query parameters """
+        """ It should only return those items which have the quantities in the query parameters """
         self._add_new_shopcart(CUSTOMER_ID)
         self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID, 1)
         self._add_new_shopcart_item(CUSTOMER_ID, 2, 10)
@@ -173,6 +173,14 @@ class TestShopCartsServer(TestCase):
         data = response.get_json()
         self.assertEqual(data['customer_id'], 1)
         self.assertEqual(len(data['items']), 2)
+
+    def test_read_customer_shopcart_items_with_invalid_query(self):
+        """ It should return 400 if the query parameter value for quantity is invalid """
+        self._add_new_shopcart(CUSTOMER_ID)
+        self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID, 1)
+        self._add_new_shopcart_item(CUSTOMER_ID, 2, 10)
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?quantity=abc')
+        self.assertEqual(response.status_code, 400)
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""
