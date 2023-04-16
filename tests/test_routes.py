@@ -53,8 +53,8 @@ class TestShopCartsServer(TestCase):
         shopcart.create()
         return shopcart
 
-    def _add_new_shopcart_item(self, customer_id, product_id):
-        shopcart_item = ShopCart(customer_id=customer_id, product_id=product_id, quantities=1)
+    def _add_new_shopcart_item(self, customer_id, product_id, quantities = 1):
+        shopcart_item = ShopCart(customer_id=customer_id, product_id=product_id, quantities=quantities)
         shopcart_item.create()
         return shopcart_item
 
@@ -164,6 +164,18 @@ class TestShopCartsServer(TestCase):
         """ It should return a 404 when trying to get all items of nonexistent customer """
         response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_customer_shopcart_items_with_query(self):
+        """ ----------------------------It should only return those items which have the quantities in the query parameters """
+        self._add_new_shopcart(CUSTOMER_ID)
+        self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID, 1)
+        self._add_new_shopcart_item(CUSTOMER_ID, 2, 10)
+        self._add_new_shopcart_item(CUSTOMER_ID, 3, 10)
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?quantity=10')
+        data = response.get_json()
+        self.assertEqual(data['customer_id'], 1)
+        self.assertEqual(len(data['items']), 2)
+
 
     def test_update_item_quantity_positive(self):
         """ It should update the quantity of a product if it exists in a customer's cart"""

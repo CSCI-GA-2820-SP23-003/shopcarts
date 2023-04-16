@@ -361,6 +361,17 @@ def list_shopcart_items(customer_id):
         abort(status.HTTP_404_NOT_FOUND,
               f"Customer {customer_id} does not have a cart")
 
+    query_params = request.args.to_dict(flat=False)
+    query_quantities = query_params.get('quantity')
+
+    if query_quantities:
+        for query_qty in query_quantities:
+            if not query_qty.lstrip('-').isdigit():
+                logger.error(f"Invalid value passed for quantity in query parameters")
+                abort(status.HTTP_400_BAD_REQUEST, f"Quantity: {query_qty} is not a valid value")
+        
+        query_quantities = [int(qty) for qty in query_quantities]
+
     results = ShopCart.find_by_customer_id(customer_id)
 
     shopcart_list = {}
@@ -372,6 +383,10 @@ def list_shopcart_items(customer_id):
             'item_id': current_item['product_id'],
             'quantity': current_item['quantities'],
         }
+
+        if query_quantities and item['quantity'] not in query_quantities:
+            continue
+
         items.append(item)
 
     shopcart_list['customer_id'] = customer_id
