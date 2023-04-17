@@ -1,6 +1,6 @@
 # These can be overidden with env vars.
 REGISTRY ?= us.icr.io
-NAMESPACE ?= nyu-devops
+NAMESPACE ?= shopcart
 IMAGE_NAME ?= shopcart
 IMAGE_TAG ?= 1.0
 IMAGE ?= $(REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG)
