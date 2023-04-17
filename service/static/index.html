@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shopcart RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="static/images/newapp-icon.png">
+    <link rel="stylesheet" href="static/css/cerulean_bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+          <h1>Shopcart REST API Service</h1>
+      </div>
+
+
+      <!-- FORM -->
+      <div class="col-md-12" id="form_data">
+        <h3>SHOPCART API: Create, Retrieve, Update, and Delete a Shopcart</h3>
+        <div class="well">
+
+          <!-- Flash Message -->
+          <div class="table-responsive">
+            <table class="table">
+              <tr><td>Response Status:</td><td><strong><span id="flash_message"></span></strong></td></tr>
+            </table>
+          </div>
+
+          
+
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="customer_id">Customer ID:</label>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" id="customer_id" placeholder="Enter ID of Customer">
+              </div>
+              <div class="col-sm-5">
+                <button type="submit" class="btn btn-primary" id="retrieve-shopcart-btn">Retrieve Cart</button>
+                <button type="submit" class="btn btn-warning" id="clear-shopcart-btn">Clear Cart</button>
+                <button type="submit" class="btn btn-danger" id="delete-shopcart-btn">Delete Cart</button>
+                
+              </div>
+            </div>
+          </div> 
+          
+
+          <div class="form-horizontal">
+
+            <!-- Add button to add a new row to the table -->
+            <button id="add-row-btn" class="btn btn-primary mb-2">Add Item - For update cart</button>
+            <table class="table" id="update-cart-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="update-cart-table-body">
+                <tr>
+                  <td><label for="item-id-input">Item ID:</label></td>
+                  <td><input id="item-id-input" type="text" class="form-control" placeholder="Enter Item ID"></td>
+                  <td><label for="quantity-input">Quantity:</label></td>
+                  <td><input id="quantity-input" type="number" class="form-control" placeholder="Enter Quantity"></td>
+                  <td><button class="btn btn-danger delete-row-btn">Delete</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="clear-btn">Reset</button>
+                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+        </div> <!-- end well -->
+      </div> <!-- end Form -->
+
+      <!-- Search Results for Shopcarts API-->
+      <div class="table-responsive col-md-12" id="search_results">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th class="col-md-3">Customer ID</th>
+            <th class="col-md-3">Shopcart #</th>
+            <th class="col-md-3">Item ID</th>
+            <th class="col-md-3">Quantity</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+
+    
+
+      <!-- ---------------- SHOPCART ITEMS API ------------------------->
+
+
+      <!--  -->
+
+
+      <!-- FORM -->
+      <div class="col-md-12" id="form_data">
+        <h3>SHOPCART ITEMS API: Create, Retrieve, Update, and Delete a Shopcart Item</h3>
+        <div class="well">
+
+          <div class="table-responsive">
+            <table class="table">
+              <tr><td>Response Status:</td><td><strong><span id="item_flash_message"></span></strong></td></tr>
+            </table>
+          </div>
+
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_customer_id">Customer ID:</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="item_customer_id" placeholder="Enter ID of Customer">
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+
+          <div class="form-horizontal">
+            <!-- NAME -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_item_id">Item ID:</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="item_item_id" placeholder="Enter ID of item">
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary" id="retrieve-item-btn">Retrieve Item</button>
+                <button type="submit" class="btn btn-danger" id="delete-item-btn">Delete Item</button>
+              </div>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_quantity">Quantity:</label>
+              <div class="col-sm-10">
+                <input type="number" class="form-control" id="item_quantity" placeholder="Enter Item Quantity">
+              </div>
+            </div>
+
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="item_search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="item_clear-btn">Reset Form</button>
+                <button type="submit" class="btn btn-success" id="item_create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="item_update-btn">Update</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+        </div> <!-- end well -->
+      </div> <!-- end Form -->
+
+      <!-- Search Results for Shopcarts API-->
+      <div class="table-responsive col-md-12" id="items_search_results">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th class="col-md-4">Customer ID</th>
+            <th class="col-md-4">Item ID</th>
+            <th class="col-md-4">Quantity</th>
+          </thead>
+        </table>
+      </div>
+
+      
+
+      <footer>
+        <br><br>
+        <p>&copy; NYU DevOps Company 2023</p>
+      </footer>
+
+    </div> <!-- container -->
+
+  <script type="text/javascript" src = "static/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
+
+  <!-- YOUR REST API -->
+  <script type="text/javascript" src="static/js/rest_api.js"></script>
+
+  </body>
+</html>
