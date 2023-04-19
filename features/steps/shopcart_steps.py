@@ -43,11 +43,9 @@ def step_impl(context):
 	for cid in customer_ids:
 		context.resp = requests.delete(f"{rest_endpoint}/{cid}")
 		expect(context.resp.status_code).to_equal(204)
-	print(context.table)
 	
 	# load the DB with the new shopcart records
 	for row in context.table:
-		print('CURRENT ROW:', row)
 		payload = {
 			'customer_id': int(row['customer_id']), 
 			'product_id': int(row['product_id']), 
@@ -57,9 +55,7 @@ def step_impl(context):
 		if payload['product_id'] == -1:
 			# create shopcart request
 			context.resp = requests.post(rest_endpoint, json=payload)
-			print('creating sc req:', row, context.resp.status_code)
 		else:
 			# create shopcart item
 			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items", json=payload)
-			print('creating sc req:', row, context.resp.status_code)
 		expect(context.resp.status_code).to_equal(201)
