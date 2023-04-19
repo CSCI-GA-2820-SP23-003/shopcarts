@@ -34,7 +34,7 @@
 	}
 	},
 	"postCreateCommand": "sudo pip install -r requirements.txt",
-	"forwardPorts": [8000]
+	"forwardPorts": [8080]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": 8080,
