@@ -17,15 +17,16 @@ Feature: The shopcart service back-end
         Then I should see "Shopcart RESTful Service" in the title
         And I should not see "404 Not Found"
 
-    Scenario: Update a Shopcarrt
+    Scenario: Update a Shopcart
         When I visit the "Home Page"
-        And I press the "add-row-btn" button
-        And I set the "customer_id" to "1"
-        And I set the "item-id-input" to "1"
-        And I set the "quantity-input" to "10"
-        And I set the "item-id-input" to "3"
-        And I set the "quantity-input" to "9"
-        Then I should see the message "Success" in "flash message"
-        And For row "1", I should see "1" in col "1" and "10" in col "3" in table "update-cart-table"
-        And For row "2", I should see "3" in col "1" and "9" in col "3" in table "update-cart-table"
+        And I press the "add-row" button
+        And I set the "customer_id" to "10"
+        And I set row "1" of add-item-table to "1, 10"
+        And I set row "2" of add-item-table to "3, 9"
+        And I press the "update" button
+        Then I should see "Success" in "flash message" area
+        And I should see "1" in row "1", col "3" of table "search_results"
+        And I should see "10" in row "1", col "4" of table "search_results"
+        And I should see "3" in row "2", col "3" of table "search_results"
+        And I should see "9" in row "2", col "4" of table "search_results"
 
