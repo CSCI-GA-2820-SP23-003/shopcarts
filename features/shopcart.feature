@@ -37,7 +37,7 @@ Feature: The shopcart service back-end
         And I should see "10" in row "1", col "1" of table "search_results"
         And I should see "20" in row "2", col "1" of table "search_results"
 
-    Scenario: Display A Customer's Shopcarts
+    Scenario: Display A Customer's Shopcart
         When I visit the "Home Page"
         And I set the "customer_id" to "10"
         And I press the "retrieve-shopcart" button
