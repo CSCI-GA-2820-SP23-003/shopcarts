@@ -41,6 +41,13 @@ def step_impl(context):
     # Uncomment next line to take a screenshot of the web page
     # context.driver.save_screenshot('home_page.png')
 
+@then('I should see "{message}" in the title')
+def step_impl(context, message):
+    """ Check the document title for a message """
+    print("Printing here: ",(context.driver.title))
+    print("Last print stmnt")
+    expect(context.driver.title).to_contain(message)
+
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
     element_id = ID_PREFIX + element_name.lower()
