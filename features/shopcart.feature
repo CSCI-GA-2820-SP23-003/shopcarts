@@ -14,4 +14,11 @@ Background:
 Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Shopcart RESTful Service" in the title
-    And I should not see "404 Not Found"
+    And I should not see "404 Not Found"\
+
+Scenario: Update a Shopcarrt
+    When I visit the "Home Page"   
+    And I  set "item_id" to "4"
+    And I  set "item_id" to "4" 
+    And I set
+    Then 
