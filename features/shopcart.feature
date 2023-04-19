@@ -19,8 +19,8 @@ Feature: The shopcart service back-end
 
     Scenario: Update a Shopcart
         When I visit the "Home Page"
-        And I press the "add-row" button
         And I set the "customer_id" to "10"
+        And I press the "add-row" button
         And I set row "1" of add-item-table to "1, 10"
         And I set row "2" of add-item-table to "3, 9"
         And I press the "update" button
@@ -37,4 +37,18 @@ Feature: The shopcart service back-end
         And I should see "10" in row "1", col "1" of table "search_results"
         And I should see "20" in row "2", col "1" of table "search_results"
 
+    Scenario: Display A Customer's Shopcarts
+        When I visit the "Home Page"
+        And I set the "customer_id" to "10"
+        And I press the "retrieve-shopcart" button
+        Then I should see "Success" in "flash message" area
+        And I should see "10" in row "1", col "1" of table "search_results"
+        And I should see "1" in row "1", col "2" of table "search_results"
+        And I should see "1" in row "1", col "3" of table "search_results"
+        And I should see "3" in row "1", col "4" of table "search_results"
+        And I should see "10" in row "2", col "1" of table "search_results"
+        And I should see "1" in row "2", col "2" of table "search_results"
+        And I should see "2" in row "2", col "3" of table "search_results"
+        And I should see "3" in row "2", col "4" of table "search_results"
+        And Only one shopcart should exist for the customer in table "search_results"
 

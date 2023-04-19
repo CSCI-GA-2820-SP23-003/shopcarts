@@ -63,7 +63,6 @@ def step_impl(context, row_num, cell):
     item_id, quantity = cell.split(',')
     item_id, quantity = int(item_id), int(quantity)
 
-    # find the table
     input_table = context.driver.find_element_by_id("update-cart-table-body")
     rows = input_table.find_elements(By.TAG_NAME, "tr")
     print('rows in input_table: ', len(rows))
@@ -113,7 +112,20 @@ def step_impl(context, text_string, row_num, col_num, table_name):
     cell = rows[row_num].find_elements(By.TAG_NAME, 'td')[col_num]
     expect(int(cell.text)).to_be(int(text_string))
 
-    
+@then('Only one shopcart should exist for the customer in table "{table_name}"')
+def step_impl(context, table_name):
+    table_div = context.driver.find_element_by_id(table_name)
+    table = table_div.find_element(By.TAG_NAME, 'tbody')
+
+    col_num = 1 #shopcart # column
+
+    rows = table.find_elements(By.TAG_NAME, 'tr')
+    for row in rows:
+        cart_num = row.find_elements(By.TAG_NAME, 'td')[col_num]
+        expect(int(cart_num.text)).to_be(1)
+
+
+
 # @then('For row "{row_num}", I should see "{item_id}" in col "{col_item_num}" and "{quantity}" in col "{col_quantity_num}" in table "{table_id}"')
 # def step_impl(context, row_num, item_id, col_item_num, quantity,col_quantity_num, table_id):
 #     table = context.driver.find_element_by_id(table_id)
