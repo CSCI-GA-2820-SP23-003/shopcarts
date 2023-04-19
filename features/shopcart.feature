@@ -52,3 +52,22 @@ Feature: The shopcart service back-end
         And I should see "3" in row "2", col "4" of table "search_results"
         And Only one shopcart should exist for the customer in table "search_results"
 
+
+    Scenario: Create a Shopcart
+        When I visit the "Home Page"
+        And I set the "customer_id" to "5"
+        And I press the "Create" button
+        Then I should see "Success" in "flash message" area
+
+    Scenario: Delete a Shopcart
+        When I visit the "Home Page"
+        And I set the "customer_id" to "6"
+        And I press the "Create" button
+        Then I should see "Success" in "flash message" area
+        When I set the "customer_id" to "6"
+        And I press the "Delete-shopCart" button
+        Then I should see "Shopcart has been Deleted!" in "flash message" area
+        When I set the "customer_id" to "6"
+        And I press the "Search" button
+        Then I should see "Success" in "flash message" area
+        And I should not see "6" in the results
