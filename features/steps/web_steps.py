@@ -49,6 +49,12 @@ def step_impl(context, message):
     print("Last print stmnt")
     expect(context.driver.title).to_contain(message)
 
+@then('I should not see "{text_string}"')
+def step_impl(context, text_string):
+    element = context.driver.find_element(By.TAG_NAME, 'body')
+    error_msg = "I should not see '%s' in '%s'" % (text_string, element.text)
+    ensure(text_string in element.text, False, error_msg)
+
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
     element_id = ID_PREFIX + element_name.lower()
