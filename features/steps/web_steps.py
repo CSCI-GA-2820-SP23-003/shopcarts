@@ -47,27 +47,12 @@ def step_impl(context, element_name, text_string):
     element = context.driver.find_element_by_id(element_id)
     element.clear()
     element.send_keys(text_string)
-    
-@when('I press "update" ')
-def step_impl(context, text, element_name):
-    for row in context.table:
-        items = str(row['order_items']).split('&')
-        order_items = []
-        for item in items:
-            item_details = item.split(',')
-            order_items.append({
-                "product_id": int(item_details[0]),
-                "quantity": int(item_details[1]),
-                "price": float(item_details[2]),
-                "status": item_details[3]
-            })
-        data = {
-            "customer_id": int(row['customer_id']),
-            "order_items": order_items,
-        }
-        payload = json.dumps(data)
-        context.resp = requests.post(create_url, data=payload, headers=headers)
-        expect(context.resp.status_code).to_equal(201)
+
+# @then('For row "{row_num}", I should see "{item_id}" in col "{col_item_num}" and "{quantity}" in col "{col_quantity_num}" in table "{table_id}"')
+# def step_impl(context, row_num, item_id, col_item_num, quantity,col_quantity_num, table_id):
+#     table = context.driver.find_element_by_id(table_id)
+#     input_fields = table.find_elements(By.CLASS_NAME, "form-control")
+#     ensure(input_fields[0].text, )
 # @then('I should see "{message}" in the title')
 # def step_impl(context, message):
 #     """ Check the document title for a message """
