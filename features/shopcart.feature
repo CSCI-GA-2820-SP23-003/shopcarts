@@ -30,3 +30,11 @@ Feature: The shopcart service back-end
         And I should see "3" in row "2", col "3" of table "search_results"
         And I should see "9" in row "2", col "4" of table "search_results"
 
+    Scenario: List All Shopcarts
+        When I visit the "Home Page"
+        And I press the "search" button
+        Then I should see "Success" in "flash message" area
+        And I should see "10" in row "1", col "1" of table "search_results"
+        And I should see "20" in row "2", col "1" of table "search_results"
+
+
