@@ -17,6 +17,7 @@ spec:
       app: shopcart
   template:
     metadata:
+      namespace: dev
       labels:
         app: shopcart
     spec:
