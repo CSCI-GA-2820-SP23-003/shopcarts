@@ -59,7 +59,7 @@ jobs:
           curl -i http://localhost:8000/health
           echo "\n*** SERVER IS RUNNING ***"
         env:
-          DATABASE_URI: "postgresql://postgres:postgres@postgres:5432/postgres"
+          DATABASE_URI: "postgresql://postgres:1234@postgres:5432/CIdb"
 
       - name: Run BDD Integration Tests
         run: behave
