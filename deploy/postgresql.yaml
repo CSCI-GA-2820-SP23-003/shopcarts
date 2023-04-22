@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: dev
   labels:
     app: postgres
 spec:
@@ -59,3 +58,21 @@ spec:
     - port: 5432
       targetPort: 5432
       nodePort: 31032
+
+---
+# This secret can also be created from the command line using environment variables
+#
+# export DATABASE_URI='postgresql://<place-url-to-database-here>'
+# export POSTGRES_PASSWORD='<place-password-here>'
+#
+# kubectl create secret generic postgres-creds \
+#     --from-literal=password=$POSTGRES_PASSWORD
+#     --from-literal=database_uri=$DATABASE_URI
+#
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-creds
+data:
+  password: cG9zdGdyZXM=
+  database_uri: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBvc3RncmVzQHBvc3RncmVzOjU0MzIvcG9zdGdyZXM=
