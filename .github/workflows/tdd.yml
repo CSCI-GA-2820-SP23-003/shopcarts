@@ -45,10 +45,11 @@ jobs:
           apt-get install -y gcc libpq-dev make sudo
       - name: Install dependencies
         run:
-          apt-get update
-          apt-get install -y gcc libpq-dev make sudo
-          sudo python3 -m pip install --upgrade pip wheel
-	        sudo pip install -r requirements.txt
+          make install
+          # apt-get update
+          # apt-get install -y gcc libpq-dev make sudo
+          # sudo python3 -m pip install --upgrade pip wheel
+          # sudo pip install -r requirements.txt
           # python -m pip install --upgrade pip wheel
           # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Linting
