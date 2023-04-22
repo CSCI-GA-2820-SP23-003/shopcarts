@@ -26,7 +26,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: shopcart
-          image: us.icr.io/shopcart/shopcart:1.0
+          image: us.icr.io/shopcart/shopcart:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
