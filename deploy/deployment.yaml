@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shopcart
-  namespace: dev
   labels:
     app: shopcart
 spec:
@@ -17,7 +16,6 @@ spec:
       app: shopcart
   template:
     metadata:
-      namespace: dev
       labels:
         app: shopcart
     spec:
