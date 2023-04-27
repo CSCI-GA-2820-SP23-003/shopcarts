@@ -20,42 +20,43 @@ Shopcart Steps
 Steps file for shopcart.feature
 
 For information on Waiting until elements are present in the HTML see:
-	https://selenium-python.readthedocs.io/waits.html
+https://selenium-python.readthedocs.io/waits.html
 """
 import requests
 from behave import given
 from compare import expect
 
+
 @given('the following shopcart entries in DB')
 def step_impl(context):
-	""" Delete all Shopcart records and load new ones """
-	
-	rest_endpoint = f"{context.BASE_URL}/shopcarts"
-	context.resp = requests.get(rest_endpoint)
-	data = context.resp.json()
-	expect(context.resp.status_code).to_equal(200)
-	customer_ids = []
+    """ Delete all Shopcart records and load new ones """
 
-	for cart in data['shopcart_lists']:
-		customer_ids.append(cart['customer_id'])
-	
-	# delete shopcarts of all customers in DB
-	for cid in customer_ids:
-		context.resp = requests.delete(f"{rest_endpoint}/{cid}")
-		expect(context.resp.status_code).to_equal(204)
-	
-	# load the DB with the new shopcart records
-	for row in context.table:
-		payload = {
-			'customer_id': int(row['customer_id']), 
-			'product_id': int(row['product_id']), 
-			'quantities':  int(row['quantities'])
-		}
+    rest_endpoint = f"{context.BASE_URL}/shopcarts"
+    context.resp = requests.get(rest_endpoint)
+    data = context.resp.json()
+    expect(context.resp.status_code).to_equal(200)
+    customer_ids = []
 
-		if payload['product_id'] == -1:
-			# create shopcart request
-			context.resp = requests.post(rest_endpoint, json=payload)
-		else:
-			# create shopcart item
-			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items", json=payload)
-		expect(context.resp.status_code).to_equal(201)
+    for cart in data['shopcart_lists']:
+        customer_ids.append(cart['customer_id'])
+
+    # delete shopcarts of all customers in DB
+    for cid in customer_ids:
+        context.resp = requests.delete(f"{rest_endpoint}/{cid}")
+        expect(context.resp.status_code).to_equal(204)
+
+    # load the DB with the new shopcart records
+    for row in context.table:
+        payload = {
+            'customer_id': int(row['customer_id']),
+            'product_id': int(row['product_id']),
+            'quantities':  int(row['quantities'])
+        }
+
+        if payload['product_id'] == -1:
+            # create shopcart request
+            context.resp = requests.post(rest_endpoint, json=payload)
+        else:
+            # create shopcart item
+            context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items", json=payload)
+        expect(context.resp.status_code).to_equal(201)
