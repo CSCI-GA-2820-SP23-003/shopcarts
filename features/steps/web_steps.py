@@ -91,6 +91,8 @@ def step_impl(context, text_string):
 @then('I should see "{text_string}" in "{element_name}" area')
 def step_impl(context, text_string, element_name):
     element_id = element_name.lower().replace(' ', '_')
+    # import pdb
+    # pdb.set_trace()
     found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element(
             (By.ID, element_id),
@@ -98,6 +100,14 @@ def step_impl(context, text_string, element_name):
         )
     )
     expect(found).to_be(True)
+
+@then('I should not see any content in the table "{table_name}"')
+def step_impl(context, table_name):
+    table_div = context.driver.find_element_by_id(table_name)
+    table = table_div.find_element(By.TAG_NAME, 'tbody')
+    rows = table.find_elements(By.TAG_NAME, 'tr')
+    expect(len(rows)).to_be(0)
+
 
 @then('I should see "{text_string}" in row "{row_num}", col "{col_num}" of table "{table_name}"')
 def step_impl(context, text_string, row_num, col_num, table_name):
