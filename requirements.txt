@@ -25,6 +25,8 @@ coverage==7.1.0
 
 # Utilities
 httpie==3.2.1
+Flask-API==1.0
+flasgger==0.8.1
 
 # Behavior Driven Development
 behave==1.2.6
