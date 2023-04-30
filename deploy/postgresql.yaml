@@ -47,16 +47,17 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
+  namespace: dev
   labels:
     app: postgres
 spec:
-  type: NodePort
+  type: Cluster IP
   selector:
     app: postgres
   ports:
     - port: 5432
       targetPort: 5432
-      nodePort: 31032
+      # nodePort: 31032
 
 ---
 # This secret can also be created from the command line using environment variables
