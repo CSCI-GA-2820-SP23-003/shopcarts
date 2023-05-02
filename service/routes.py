@@ -15,31 +15,6 @@ from . import app,api
 
 logger = logging.getLogger("flask.app")
 
-# ######################################################################
-# # Authorization Decorator
-# ######################################################################
-# def token_required(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         token = None
-#         if 'X-Api-Key' in request.headers:
-#             token = request.headers['X-Api-Key']
-
-#         if app.config.get('API_KEY') and app.config['API_KEY'] == token:
-#             return f(*args, **kwargs)
-#         else:
-#             return {'message': 'Invalid or missing token'}, 401
-#     return decorated
-
-
-# ######################################################################
-# # Function to generate a random API key (good for testing)
-# ######################################################################
-# def generate_apikey():
-#     """ Helper function used when testing API keys """
-#     return secrets.token_hex(16)
-
-
 # Define the model so that the docs reflect what can be sent
 shopcart_create_model = api.model('ShopCart', {
     'customer_id': fields.Integer(required=True,
@@ -159,15 +134,6 @@ class ShopcartCollection(Resource):
         shopcart.create()
 
         location_url = api.url_for(CustomerResource, customer_id=customer_id, _external=True)
-        # logger.info(f"Create a shopcart for customer {customer_id} sucessfully")
-        # shopcart_json = {
-        #         'customer_id': customer_id,
-        #         "shopcarts": [
-        #             {
-        #                 'items': []
-        #             }
-        #         ]
-        #     }
         return shopcart.serialize(), status.HTTP_201_CREATED,{"Location": location_url}
        
     
@@ -235,7 +201,8 @@ class CustomerResource(Resource):
     @api.expect(shopcart_create_model)
     @api.marshal_with(shopcart_model)
     def put(self, customer_id):
-        """Updates shopcart with customer id
+        """Updates shopcart with customer id with the query parameter True
+            and Clears shopcart with query parameter False
         Args:
             customer_id (int): the id of the customer and item to add for it
         Returns:
@@ -307,27 +274,6 @@ class CustomerResource(Resource):
             logger.info(f"Updated shopcart for customer {customer_id} sucessfully")
             results = [item.serialize() for item in items]
             return results, status.HTTP_200_OK
-
-    # -----------------------------------------------------------
-    # CLEAR SHOPCART OF A CUSTOMER
-    # -----------------------------------------------------------
-    def clear(self,customer_id):
-        """
-        Clear the shopcart of a customer
-        """
-        app.logger.info("clear shopcart of customer with id: %s", customer_id)
-
-        if not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1):
-            logger.error(f"Customer {customer_id} does not have a cart")
-            abort(status.HTTP_404_NOT_FOUND,
-                f"Customer {customer_id} does not have a cart")
-
-        ShopCart.clear_cart(customer_id, delete_cart=False)
-
-        response = {'customer_id': customer_id}
-
-        return response, status.HTTP_200_OK
-
 
 # ######################################################################
 # #  ITEM   A P I   E N D P O I N T S
@@ -417,9 +363,7 @@ class ItemResource(Resource):
                   f"Quantity to be updated [{new_quantity}] should be positive!")
 
         shopcart_item.quantities = int(new_quantity)
-
         shopcart_item.update()
-
         app.logger.info(
             f"Updated Product-{product_id} quantity to {new_quantity} in customer-{customer_id}'s cart!")
 

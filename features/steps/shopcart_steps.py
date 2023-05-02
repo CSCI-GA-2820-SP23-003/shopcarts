@@ -30,13 +30,13 @@ from compare import expect
 def step_impl(context):
 	""" Delete all Shopcart records and load new ones """
 	
-	rest_endpoint = f"{context.BASE_URL}/shopcarts"
+	rest_endpoint = f"{context.BASE_URL}/api/shopcarts"
 	context.resp = requests.get(rest_endpoint)
 	data = context.resp.json()
 	expect(context.resp.status_code).to_equal(200)
 	customer_ids = []
 
-	for cart in data['shopcart_lists']:
+	for cart in data:
 		customer_ids.append(cart['customer_id'])
 	
 	# delete shopcarts of all customers in DB
