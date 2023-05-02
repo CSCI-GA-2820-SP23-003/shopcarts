@@ -33,6 +33,16 @@ shopcart_model = api.inherit(
                             description='The unique id assigned internally by service'),
     }
 )
+shopcart_list_model = api.model(
+    'ListOfShopCartModel', 
+    {
+        'customer_id': fields.String(required=True,readOnly=True,
+                            description='The customer_id of the customer'),
+        'items':fields.List(fields.Nested(shopcart_model,
+                                           required=True,
+                                           description='List of items that the customer wants to add to the shopcart'))                  
+    }
+)
 
 # query string arguments
 shopcart_args = reqparse.RequestParser()
@@ -145,7 +155,6 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     @api.doc('list_all_shopcarts_of_a_customer')
     @api.response(404, 'Customer has not created shopcart yet')
-    @api.expect(shopcart_create_model)
     @api.marshal_list_with(shopcart_model, code=201)
     def get(self,customer_id):
         """
@@ -181,7 +190,6 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     @api.doc('delete_shopcart_of_a_customer')
     @api.response(404, 'Customer has not created shopcart yet')
-    @api.expect(shopcart_create_model)
     def delete(self,customer_id):
         """
         Delete the shopcart of a customer
@@ -198,8 +206,8 @@ class CustomerResource(Resource):
     @api.doc('update_shopcart')
     @api.response(400, 'The customer has not created the shopcart')
     @api.response(409, 'The customer_id provided in payload is not in sync with the one provided in the url requested')
-    @api.expect(shopcart_create_model)
-    @api.marshal_with(shopcart_model)
+    @api.expect(shopcart_list_model)
+    @api.marshal_with(shopcart_model, code=200)
     def put(self, customer_id):
         """Updates shopcart with customer id with the query parameter True
             and Clears shopcart with query parameter False
@@ -290,7 +298,7 @@ class ItemResource(Resource):
     @api.response(400, 'Bad Request: inconsistent customer_id in request payload and url')
     @api.response(409, 'Conflict: product already present in the shopcart')
     @api.expect(shopcart_model)
-    @api.marshal_with(shopcart_model)
+    @api.marshal_with(shopcart_model, code=201)
     def post(self, customer_id,product_id):
         """Creates a new entry and stores it in the database
         Args:
@@ -336,7 +344,8 @@ class ItemResource(Resource):
     @api.doc('update_shopcart_item_of_customer_id')
     @api.response(404, 'Bad Request: Cutomer as not created cart')
     @api.response(404, 'Bad Request: Quantity provided should be integer')
-    @api.marshal_with(shopcart_model)
+    @api.expect(shopcart_model)
+    @api.marshal_with(shopcart_model, code=200)
     def put(self, customer_id, product_id):
         """Updates the quantity of an existing product"""
         app.logger.info(
@@ -373,7 +382,6 @@ class ItemResource(Resource):
     # DELETE PRODUCT FROM CART
     # -----------------------------------------------------------
     @api.doc('delete_shopcart_item_of_customer_id')
-    @api.expect(shopcart_model)
     @api.marshal_with(shopcart_model)
     def delete(self, customer_id, product_id):
         """Deletes an existing product from cart"""
@@ -397,7 +405,6 @@ class ItemResource(Resource):
     # -----------------------------------------------------------
     @api.doc('get_shopcart_item_of_customer_id')
     @api.response(404, 'Bad Request: Customer as not created cart')
-    @api.expect(shopcart_model)
     @api.marshal_with(shopcart_model)
     def get(self,customer_id, product_id):
         """
@@ -429,7 +436,6 @@ class CustomerItemsCollection(Resource):
     # -----------------------------------------------------------
     @api.doc('get_shopcart_of_customer_id')
     @api.response(404, 'Bad Request: Cutomer as not created cart')
-    @api.expect(shopcart_create_model)
     @api.marshal_list_with(shopcart_model)
     def get(self, customer_id):
         """
