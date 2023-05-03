@@ -310,11 +310,12 @@ class TestShopCartsServer(TestCase):
     def test_update_shopcart(self):
         """ It should update the shopcart in database"""
         self._add_new_shopcart(CUSTOMER_ID)
-
+        
         items = []
         for i in range(10):
             shopcart = ShopCartsFactory()
             shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['product_id'] = i*100
             shopcart_item_json['customer_id'] = CUSTOMER_ID
             shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
             items.append(shopcart_item_json)
@@ -359,6 +360,24 @@ class TestShopCartsServer(TestCase):
         shopcart_json['items'] = items
         resp = self.app.put(f"/api/shopcarts/{CUSTOMER_ID}?update=True", json=shopcart_json)
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_update_shopcart_of_a_customer_with_request_with_duplicate_product_id(self):
+        self._add_new_shopcart(CUSTOMER_ID)
+        items = []
+        for i in range(10):
+            shopcart = ShopCartsFactory()
+            shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['product_id'] = i
+            shopcart_item_json['customer_id'] = CUSTOMER_ID
+            shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
+            items.append(shopcart_item_json)
+        items[1]['product_id']=items[2]['product_id']    
+        shopcart_json = {}
+        shopcart_json['customer_id'] = CUSTOMER_ID
+        shopcart_json['items'] = items
+        resp = self.app.put(f"/api/shopcarts/{CUSTOMER_ID}?update=True", json=shopcart_json)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
 
     def test_update_shopcart_of_a_customer_with_request_with_wrong_customer_id_in_request_body(self):
         self._add_new_shopcart(CUSTOMER_ID)
