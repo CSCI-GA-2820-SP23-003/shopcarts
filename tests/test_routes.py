@@ -390,6 +390,15 @@ class TestShopCartsServer(TestCase):
         response = self.app.put(f'/api/shopcarts/{CUSTOMER_ID}?update=False')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update_query_params(self):
+        """ It should throw a bad request for a bad update query param"""
+        self._add_new_shopcart(CUSTOMER_ID)
+        self._add_new_shopcart_item(CUSTOMER_ID, 1)
+        self._add_new_shopcart_item(CUSTOMER_ID, 2)
+        response = self.app.put(f'/api/shopcarts/{CUSTOMER_ID}?update=ABC')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_clear_shopcart_of_a_customer_with_no_cart(self):
         """ It should return 404 on trying to clear a cart of a customer with no cart"""
         response = self.app.put(f'/api/shopcarts/{CUSTOMER_ID}?update=False')
