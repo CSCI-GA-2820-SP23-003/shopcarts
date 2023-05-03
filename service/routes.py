@@ -282,10 +282,17 @@ class CustomerResource(Resource):
                     logger.info(
                         f"Duplicate entries for {shopcart_item.product_id } in request body")
                     abort(
-                        status.HTTP_409_CONFLICT,
+                        status.HTTP_400_BAD_REQUEST,
                         f"Duplicate entries for {shopcart_item.product_id } in request body"
                     )
-                else:
+                elif int(shopcart_item.quantities)<=0:
+                    logger.info(
+                        f"Negative or Zero quantity of {shopcart_item.product_id } provided in request body")
+                    abort(
+                        status.HTTP_400_BAD_REQUEST,
+                        f"Negative or Zero quantity of {shopcart_item.product_id } provided in request body"
+                    )
+                else:    
                     product_id.add(shopcart_item.product_id)
                     products.append(shopcart_item)
             for product in products:    
