@@ -72,7 +72,7 @@ Feature: The shopcart service back-end
         Then I should see "Success" in "flash message" area
         And I should not see "6" in the results
 
-    Scenario: Clear a Shopcart    
+    Scenario: Clear a Shopcart
         When I visit the "Home Page"
         And I set the "customer_id" to "20"
         And I press the "clear-shopcart" button

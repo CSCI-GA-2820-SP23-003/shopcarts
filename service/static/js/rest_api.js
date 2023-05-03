@@ -8,6 +8,7 @@ $(function () {
 
     function clear_search_results_table() {
         $("#search_results").empty();
+
         let table = '<table class="table table-striped" cellpadding="10">';
         table += '<thead><tr>';
         table += '<th class="col-md-3">Customer ID</th>';
@@ -16,6 +17,8 @@ $(function () {
         table += '<th class="col-md-3">Quantity</th>';
         table += '</tr></thead><tbody>';
         table += '</tbody></table>';
+        console.log('table');
+        console.log(table);
         $("#search_results").append(table);
 
     }
@@ -58,17 +61,14 @@ $(function () {
         table += '<th class="col-md-3">Item ID</th>';
         table += '<th class="col-md-3">Quantity</th>';
         table += '</tr></thead><tbody>';
-
-        let customer_id = res.customer_id;
-        let num_shopcarts = res.shopcarts.length;
+        if (res.length <= 0)
+            return;
+        let customer_id = res[0].customer_id;
+        let num_shopcarts = res.length;
 
         for (let i = 0; i < num_shopcarts; i++) {
-            let current_cart = res.shopcarts[i];
-            let num_items = current_cart.items.length;
-            for (let j = 0; j < num_items; j++) {
-                let current_item = current_cart.items[j];
-                table += `<tr id="cart_row_${i + j}" ><td>${customer_id}</td><td>${i + 1}</td><td>${current_item.item_id}</td><td>${current_item.quantity}</td></tr>`;
-            }
+            let current_cart = res[i];
+            table += `<tr id="cart_row_${i + 1}" ><td>${customer_id}</td><td>1</td><td>${current_cart.product_id}</td><td>${current_cart.quantities}</td></tr>`;
         }
         table += '</tbody></table>';
         $("#search_results").append(table);
@@ -172,7 +172,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "POST",
-            url: '/shopcarts',
+            url: '/api/shopcarts',
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -200,7 +200,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/shopcarts/${customer_id}`,
+            url: `/api/shopcarts/${customer_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -231,13 +231,13 @@ $(function () {
 
         let ajax = $.ajax({
             type: "PUT",
-            url: `/shopcarts/${customer_id}/clear`,
+            url: `/api/shopcarts/${customer_id}?update=False`,
             contentType: "application/json",
             data: ''
         })
 
         ajax.done(function (res) {
-            //alert(res.toSource())
+            //alert(res.toSource()) 
             // update_shopcart_results(res);
             clear_search_results_table();
             // update_item_form_data(res)
@@ -263,7 +263,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/shopcarts/${customer_id}`,
+            url: `/api/shopcarts/${customer_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -291,7 +291,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: "/shopcarts",
+            url: "/api/shopcarts",
             contentType: "application/json",
             data: ''
         })
@@ -307,8 +307,8 @@ $(function () {
             table += '<th class="col-md-3"></th>'
             table += '</tr></thead><tbody>'
 
-            for (let i = 0; i < res.shopcart_lists.length; i++) {
-                let cur_cart = res.shopcart_lists[i];
+            for (let i = 0; i < res.length; i++) {
+                let cur_cart = res[i];
                 table += `<tr id = "row_${i}" ><td>${cur_cart.customer_id}</td><td>1</td><td></td><td></td></tr > `;
 
             }
@@ -341,7 +341,7 @@ $(function () {
 
         $("#flash_message").empty();
 
-        let url = '/shopcarts/' + customer_id;
+        let url = '/api/shopcarts/' + customer_id + "?update=True";
 
         let ajax = $.ajax({
             type: "PUT",
@@ -360,10 +360,10 @@ $(function () {
             table += '<th class="col-md-3">Quantity</th>';
             table += '</tr></thead><tbody>';
 
-            let customer_id = res.customer_id;
+            let customer_id = res[0].customer_id;
 
-            for (let j = 0; j < res.items.length; j++) {
-                let current_item = res.items[j];
+            for (let j = 0; j < res.length; j++) {
+                let current_item = res[j];
                 table += `<tr id="cart_row_${j}" ><td>${customer_id}</td><td>1</td><td>${current_item.product_id}</td><td>${current_item.quantities}</td></tr>`;
             }
 
@@ -390,7 +390,7 @@ $(function () {
         let item_id = $("#item_item_id").val();
         let quantity = $("#item_quantity").val();
 
-        let url = '/shopcarts/' + customer_id + '/items'
+        let url = '/api/shopcarts/' + customer_id + '/items'
 
         let data = {
             "customer_id": Number(customer_id),
@@ -436,7 +436,7 @@ $(function () {
 
         $("#item_flash_message").empty();
 
-        let url = '/shopcarts/' + customer_id + '/items/' + item_id;
+        let url = '/api/shopcarts/' + customer_id + '/items/' + item_id;
 
         let ajax = $.ajax({
             type: "PUT",
@@ -469,7 +469,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/shopcarts/${customer_id}/items/${item_id}`,
+            url: `/api/shopcarts/${customer_id}/items/${item_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -501,7 +501,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/shopcarts/${customer_id}/items/${item_id}`,
+            url: `/api/shopcarts/${customer_id}/items/${item_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -562,10 +562,10 @@ $(function () {
         }
 
         $("#item_flash_message").empty();
-
+        $("#items_search_results").empty();
         let ajax = $.ajax({
             type: "GET",
-            url: `/shopcarts/${customer_id}/items?${queryString}`,
+            url: `/api/shopcarts/${customer_id}/items?${queryString}`,
             contentType: "application/json",
             data: ''
         })
@@ -581,12 +581,15 @@ $(function () {
             table += '</tr></thead><tbody>'
 
             let firstItem = "";
-            result_items = res.items;
-            result_customer_id = res.customer_id;
-
+            result_items = res;
+            if (res.length <= 0)
+                return;
+            result_customer_id = res[0].customer_id;
+            console.log(res);
             for (let i = 0; i < result_items.length; i++) {
-                item_id = result_items[i].item_id;
-                quantity = result_items[i].quantity;
+                console.log(result_items[i]);
+                item_id = result_items[i].product_id;
+                quantity = result_items[i].quantities;
                 table += `<tr id = "item_row_${i}"><td>${result_customer_id}</td><td>${item_id}</td><td>${quantity}</td></tr> `;
                 if (i == 0) {
                     firstItem = {
