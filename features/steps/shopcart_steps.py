@@ -20,11 +20,12 @@ Shopcart Steps
 Steps file for shopcart.feature
 
 For information on Waiting until elements are present in the HTML see:
-	https://selenium-python.readthedocs.io/waits.html
+https://selenium-python.readthedocs.io/waits.html
 """
 import requests
 from behave import given
 from compare import expect
+
 
 @given('the following shopcart entries in DB')
 def step_impl(context):
@@ -57,5 +58,5 @@ def step_impl(context):
 			context.resp = requests.post(rest_endpoint, json=payload)
 		else:
 			# create shopcart item
-			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items/{row['product_id']}", json=payload)
+			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items", json=payload)
 		expect(context.resp.status_code).to_equal(201)

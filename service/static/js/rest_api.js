@@ -8,6 +8,7 @@ $(function () {
 
     function clear_search_results_table() {
         $("#search_results").empty();
+
         let table = '<table class="table table-striped" cellpadding="10">';
         table += '<thead><tr>';
         table += '<th class="col-md-3">Customer ID</th>';
@@ -16,6 +17,8 @@ $(function () {
         table += '<th class="col-md-3">Quantity</th>';
         table += '</tr></thead><tbody>';
         table += '</tbody></table>';
+        console.log('table');
+        console.log(table);
         $("#search_results").append(table);
 
     }
@@ -58,14 +61,14 @@ $(function () {
         table += '<th class="col-md-3">Item ID</th>';
         table += '<th class="col-md-3">Quantity</th>';
         table += '</tr></thead><tbody>';
-        if(res.length<=0) 
+        if (res.length <= 0)
             return;
         let customer_id = res[0].customer_id;
         let num_shopcarts = res.length;
 
         for (let i = 0; i < num_shopcarts; i++) {
             let current_cart = res[i];
-            table += `<tr id="cart_row_${i+1}" ><td>${customer_id}</td><td>${i + 1}</td><td>${current_cart.product_id}</td><td>${current_cart.quantities}</td></tr>`;
+            table += `<tr id="cart_row_${i + 1}" ><td>${customer_id}</td><td>1</td><td>${current_cart.product_id}</td><td>${current_cart.quantities}</td></tr>`;
         }
         table += '</tbody></table>';
         $("#search_results").append(table);
@@ -338,7 +341,7 @@ $(function () {
 
         $("#flash_message").empty();
 
-        let url = '/api/shopcarts/' + customer_id+"?update=True";
+        let url = '/api/shopcarts/' + customer_id + "?update=True";
 
         let ajax = $.ajax({
             type: "PUT",
@@ -565,12 +568,12 @@ $(function () {
 
             let firstItem = "";
             result_items = res;
-            if(res.length<=0)
+            if (res.length <= 0)
                 return;
             result_customer_id = res[0].customer_id;
-            console.log( res);
+            console.log(res);
             for (let i = 0; i < result_items.length; i++) {
-                console.log( result_items[i]);
+                console.log(result_items[i]);
                 item_id = result_items[i].product_id;
                 quantity = result_items[i].quantities;
                 table += `<tr id = "item_row_${i}"><td>${result_customer_id}</td><td>${item_id}</td><td>${quantity}</td></tr> `;

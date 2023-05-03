@@ -291,53 +291,6 @@ class CustomerResource(Resource):
 @api.param('customer_id', 'The Customer identifier')
 @api.param('product_id', 'The Product identifier')
 class ItemResource(Resource):
-    # # -----------------------------------------------------------
-    # # Add an item to the cart
-    # # -----------------------------------------------------------
-    @api.doc("Add item to shopcart of the customer with customer_id as it's identifier")
-    @api.response(400, 'Bad Request: inconsistent customer_id in request payload and url')
-    @api.response(409, 'Conflict: product already present in the shopcart')
-    @api.expect(shopcart_model)
-    @api.marshal_with(shopcart_model, code=201)
-    def post(self, customer_id,product_id):
-        """Creates a new entry and stores it in the database
-        Args:
-            customer_id (str): the id of the customer and item to add for it
-        Request Body: JSON wit item_id (str): the id of item to be added
-        Returns:
-            dict: the row entry in database which contains customer_id, item_id and quantity default to 1
-        """
-        check_content_type("application/json")
-        shopcart = ShopCart()
-        shopcart.deserialize(api.payload)
-
-        # customer_id = shopcart.customer_id
-        item_id = product_id
-        quantities = shopcart.quantities
-
-        app.logger.info(
-            f"Request to add item for customer {customer_id} and item {item_id}")
-
-        if (item_id is None or quantities is None or int(customer_id) != shopcart.customer_id):
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                f"Bad request for customer:{customer_id} & item:{item_id}"
-            )
-
-        if (not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1)):
-            logger.info(f"Customer {customer_id} does not have any cart")
-            abort(status.HTTP_409_CONFLICT, f"Customer {customer_id} does not have any cart")
-
-        if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
-            logger.info(
-                f"Customer {customer_id} and corresponding item {item_id} already exists")
-            abort(status.HTTP_409_CONFLICT,
-                  f"Customer {customer_id} and corresponding item {item_id} already exists")
-
-        shopcart.create()
-        logger.info(f"Added item {item_id} for customer {customer_id} sucessfully")
-        return shopcart.serialize(), status.HTTP_201_CREATED
-    
     # -----------------------------------------------------------
     # UPDATE PRODUCT QUANTITY IN CART
     # -----------------------------------------------------------
@@ -435,7 +388,7 @@ class CustomerItemsCollection(Resource):
     # LIST ALL ITEMS IN A SHOPCART
     # -----------------------------------------------------------
     @api.doc("Retrieve all the items in a customer's cart")
-    @api.response(404, 'Bad Request: Cutomer as not created cart')
+    @api.response(404, 'Bad Request: Customer as not created cart')
     @api.marshal_list_with(shopcart_model)
     def get(self, customer_id):
         """
@@ -484,6 +437,53 @@ class CustomerItemsCollection(Resource):
             )
 
         return (results, status.HTTP_200_OK)
+    
+    # # -----------------------------------------------------------
+    # # Add an item to the cart
+    # # -----------------------------------------------------------
+    @api.doc("Add item to shopcart of the customer with customer_id as it's identifier")
+    @api.response(400, 'Bad Request: inconsistent customer_id in request payload and url')
+    @api.response(409, 'Conflict: product already present in the shopcart')
+    @api.expect(shopcart_model)
+    @api.marshal_with(shopcart_model, code=201)
+    def post(self, customer_id):
+        """Creates a new entry and stores it in the database
+        Args:
+            customer_id (str): the id of the customer and item to add for it
+        Request Body: JSON wit item_id (str): the id of item to be added
+        Returns:
+            dict: the row entry in database which contains customer_id, item_id and quantity default to 1
+        """
+        check_content_type("application/json")
+        shopcart = ShopCart()
+        shopcart.deserialize(api.payload)
+
+        # customer_id = shopcart.customer_id
+        item_id = shopcart.product_id
+        quantities = shopcart.quantities
+
+        app.logger.info(
+            f"Request to add item for customer {customer_id} and item {item_id}")
+
+        if (item_id is None or quantities is None or int(customer_id) != shopcart.customer_id):
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                f"Bad request for customer:{customer_id} & item:{item_id}"
+            )
+
+        if (not ShopCart.check_exist_by_customer_id_and_product_id(customer_id, -1)):
+            logger.info(f"Customer {customer_id} does not have any cart")
+            abort(status.HTTP_409_CONFLICT, f"Customer {customer_id} does not have any cart")
+
+        if ShopCart.check_exist_by_customer_id_and_product_id(customer_id, item_id):
+            logger.info(
+                f"Customer {customer_id} and corresponding item {item_id} already exists")
+            abort(status.HTTP_409_CONFLICT,
+                  f"Customer {customer_id} and corresponding item {item_id} already exists")
+
+        shopcart.create()
+        logger.info(f"Added item {item_id} for customer {customer_id} sucessfully")
+        return shopcart.serialize(), status.HTTP_201_CREATED
 
 
 ######################################################################

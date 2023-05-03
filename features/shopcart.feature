@@ -71,3 +71,13 @@ Feature: The shopcart service back-end
         And I press the "Search" button
         Then I should see "Success" in "flash message" area
         And I should not see "6" in the results
+
+    Scenario: Clear a Shopcart
+        When I visit the "Home Page"
+        And I set the "customer_id" to "20"
+        And I press the "clear-shopcart" button
+        Then I should see "Success" in "flash message" area
+        When I visit the "Home Page"
+        And I set the "customer_id" to "20"
+        And I press the "retrieve-shopcart" button
+        Then I should not see any content in the table "search_results"

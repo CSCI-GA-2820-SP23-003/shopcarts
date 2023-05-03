@@ -85,7 +85,7 @@ class TestShopCartsServer(TestCase):
         shopcart_json['customer_id'] = CUSTOMER_ID
         shopcart_json['product_id'] = ITEM_ID
         shopcart_json['quantities'] = abs(shopcart_json['quantities'])
-        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=shopcart_json)
+        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
@@ -94,7 +94,7 @@ class TestShopCartsServer(TestCase):
         self.assertEqual(data["quantities"], abs(shopcart_json['quantities']))
 
     def test_add_item_with_wrong_customer_id(self):
-        """ It should detect inconsitency/incorrect customer id provided in request body to that present in the url"""
+        """ It should detect inconsistency/incorrect customer id provided in request body to that present in the url"""
         self._add_new_shopcart(CUSTOMER_ID)
 
         shopcart = ShopCartsFactory()
@@ -102,7 +102,7 @@ class TestShopCartsServer(TestCase):
         shopcart_json['customer_id'] = CUSTOMER_ID*10
         shopcart_json['product_id'] = ITEM_ID
         shopcart_json['quantities'] = abs(shopcart_json['quantities'])
-        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=shopcart_json)
+        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -113,7 +113,7 @@ class TestShopCartsServer(TestCase):
         shopcart_json['customer_id'] = CUSTOMER_ID
         shopcart_json['product_id'] = ITEM_ID
         shopcart_json['quantities'] = abs(shopcart_json['quantities'])
-        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=shopcart_json)
+        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
@@ -126,12 +126,12 @@ class TestShopCartsServer(TestCase):
         shopcart_json['customer_id'] = CUSTOMER_ID
         shopcart_json['product_id'] = ITEM_ID
         shopcart_json['quantities'] = abs(shopcart_json['quantities'])
-        self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=shopcart_json)
+        self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         shopcart_json['customer_id'] = CUSTOMER_ID
         shopcart_json['product_id'] = ITEM_ID
         shopcart_json['quantities'] = abs(shopcart_json['quantities'])+10
-        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items/{ITEM_ID}", json=shopcart_json)
+        resp = self.app.post(f"/api/shopcarts/{CUSTOMER_ID}/items", json=shopcart_json)
 
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
