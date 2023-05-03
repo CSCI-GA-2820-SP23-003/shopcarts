@@ -206,14 +206,14 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     # Update a Shopcart
     # -----------------------------------------------------------
-    @api.doc("Updates shopcart with customer id with the query parameter True and Clears shopcart with query parameter False")
+    @api.doc("Updates shopcart with customer id with the query parameter 'update'=True and Clears shopcart with query parameter 'update'=False")
     @api.response(400, 'The customer has not created the shopcart')
     @api.response(409, 'The customer_id provided in payload is not in sync with the one provided in the url requested')
     @api.expect(shopcart_list_model)
     @api.marshal_with(shopcart_model, code=200)
     def put(self, customer_id):
-        """Updates shopcart with customer id with the query parameter True
-            and Clears shopcart with query parameter False
+        """Updates shopcart with customer id with the query parameter 'update'=True
+            and Clears shopcart with query parameter 'update'=False
         Args:
             customer_id (int): the id of the customer and item to add for it
         Returns:
@@ -411,8 +411,9 @@ class CustomerItemsCollection(Resource):
         This endpoint will return the cart items based on customer id
         Args:
             customer_id (int): the id of the customer
-            Query parameter:min_quantity: minimum quantity of the product to be filtered
-                            max_quantity: maximum quantity of the product to be filtered
+            Query parameter: quantity: the exact quantity of the products to be filtered.
+                             min_quantity: minimum quantity of the product to be filtered
+                             max_quantity: maximum quantity of the product to be filtered
         Returns:
             customer_id (int): id of the customer who owns the shopcart
             list of all items
