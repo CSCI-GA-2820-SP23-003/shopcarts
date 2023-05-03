@@ -285,7 +285,7 @@ class CustomerResource(Resource):
                         status.HTTP_400_BAD_REQUEST,
                         f"Duplicate entries for {shopcart_item.product_id } in request body"
                     )
-                elif shopcart_item.quantities<=0:
+                elif int(shopcart_item.quantities)<=0:
                     logger.info(
                         f"Negative or Zero quantity of {shopcart_item.product_id } provided in request body")
                     abort(
