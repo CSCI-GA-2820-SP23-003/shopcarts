@@ -266,7 +266,8 @@ class CustomerResource(Resource):
                     status.HTTP_400_BAD_REQUEST,
                     f"No items are present in the request to update the shopcart of customer {customer_id}"
                 )
-
+            product_id = set()
+            products = list()
             for item in request_data:
                 shopcart_item = ShopCart()
                 shopcart_item.deserialize(item)
@@ -277,8 +278,19 @@ class CustomerResource(Resource):
                         status.HTTP_409_CONFLICT,
                         f"Customer {customer_id} is not consistent with request"
                     )
-                shopcart_item.create()
-                logger.info(f"Added item {item['product_id']} for customer {customer_id} sucessfully")
+                if shopcart_item.product_id in product_id:
+                    logger.info(
+                        f"Duplicate entries for {shopcart_item.product_id } in request body")
+                    abort(
+                        status.HTTP_409_CONFLICT,
+                        f"Duplicate entries for {shopcart_item.product_id } in request body"
+                    )
+                else:
+                    product_id.add(shopcart_item.product_id)
+                    products.append(shopcart_item)
+            for product in products:    
+                product.create()
+                logger.info(f"Added item {product.product_id} for customer {customer_id} sucessfully")
 
             items = ShopCart.find_by_customer_id(customer_id)
             

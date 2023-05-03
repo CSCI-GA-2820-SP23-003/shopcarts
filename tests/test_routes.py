@@ -367,6 +367,7 @@ class TestShopCartsServer(TestCase):
         for i in range(10):
             shopcart = ShopCartsFactory()
             shopcart_item_json = ShopCart.serialize(shopcart)
+            shopcart_item_json['product_id'] = i
             shopcart_item_json['customer_id'] = CUSTOMER_ID
             shopcart_item_json['quantities'] = abs(shopcart_item_json['quantities'])
             items.append(shopcart_item_json)
@@ -374,7 +375,7 @@ class TestShopCartsServer(TestCase):
         shopcart_json = {}
         shopcart_json['customer_id'] = CUSTOMER_ID
         shopcart_json['items'] = items
-        resp = self.app.put(f"/shopcarts/{CUSTOMER_ID}", json=shopcart_json)
+        resp = self.app.put(f"/api/shopcarts/{CUSTOMER_ID}?update=True", json=shopcart_json)
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
 
