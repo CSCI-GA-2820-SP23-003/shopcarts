@@ -540,11 +540,25 @@ $(function () {
         let customer_id = $("#item_customer_id").val();
         let item_id = $("#item_item_id").val();
         let quantity = $("#item_quantity").val();
+        let min_quantity = $("#min_item_quantity").val();
+        let max_quantity = $("#max_item_quantity").val();
 
         let queryString = ""
 
         if (quantity) {
             queryString += 'quantity=' + quantity
+        }
+        if (min_quantity) {
+            if (queryString) {
+                queryString += '&'
+            }
+            queryString += 'min_quantity=' + min_quantity
+        }
+        if (max_quantity) {
+            if (queryString) {
+                queryString += '&'
+            }
+            queryString += 'max_quantity=' + max_quantity
         }
 
         $("#item_flash_message").empty();

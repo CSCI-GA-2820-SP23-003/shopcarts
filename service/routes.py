@@ -48,6 +48,9 @@ shopcart_list_model = api.model(
 shopcart_args = reqparse.RequestParser()
 shopcart_args.add_argument('customer_id', type=int, location='args', required=False, help='List shopcarts by customer_id')
 
+
+MIN_INT_STRING = '0'
+MAX_INT_STRING = str(2**31-1)
 ######################################################################
 # GET INDEX
 ######################################################################

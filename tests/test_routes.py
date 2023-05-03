@@ -167,17 +167,67 @@ class TestShopCartsServer(TestCase):
         self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID, 1)
         self._add_new_shopcart_item(CUSTOMER_ID, 2, 10)
         self._add_new_shopcart_item(CUSTOMER_ID, 3, 10)
+        self._add_new_shopcart_item(CUSTOMER_ID, 5, 20)
         response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?quantity=10')
         data = response.get_json()
         self.assertEqual(data[0]['customer_id'], 1)
         self.assertEqual(len(data), 2)
 
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?min_quantity=10')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 3)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?max_quantity=10')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 3)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?min_quantity=5&max_quantity=15')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 2)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?quantity=10&min_quantity=1&max_quantity=100')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 2)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?min_quantity=10')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 3)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?max_quantity=10')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 3)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?min_quantity=5&max_quantity=15')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 2)
+
+        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?quantity=10&min_quantity=1&max_quantity=100')
+        data = response.get_json()
+        self.assertEqual(data[0]['customer_id'], 1)
+        self.assertEqual(len(data), 2)
+
     def test_read_customer_shopcart_items_with_invalid_query(self):
-        """ It should return 400 if the query parameter value for quantity is invalid """
+        """ It should return 400 if the query parameter values for quantities are invalid """
         self._add_new_shopcart(CUSTOMER_ID)
         self._add_new_shopcart_item(CUSTOMER_ID, ITEM_ID, 1)
         self._add_new_shopcart_item(CUSTOMER_ID, 2, 10)
-        response = self.app.get(f'/api/shopcarts/{CUSTOMER_ID}/items?quantity=abc')
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?quantity=abc')
+        self.assertEqual(response.status_code, 400)
+
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?min_quantity=abc')
+        self.assertEqual(response.status_code, 400)
+
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?max_quantity=abc')
+        self.assertEqual(response.status_code, 400)
+
+        response = self.app.get(f'/shopcarts/{CUSTOMER_ID}/items?min_quantity=5&max_quantity=2')
         self.assertEqual(response.status_code, 400)
 
     def test_update_item_quantity_positive(self):
