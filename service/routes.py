@@ -130,7 +130,6 @@ def add_shopcart():
 # Update a Shopcart
 # -----------------------------------------------------------
 
-
 @app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
 def update_shopcart(customer_id):
     """Updates shopcart with customer id
@@ -169,7 +168,8 @@ def update_shopcart(customer_id):
             status.HTTP_400_BAD_REQUEST,
             f"No items are present in the request to update the shopcart of customer {customer_id}"
         )
-
+    product_id_updated = set()
+    products = list()
     for item in request_data:
         shopcart_item = ShopCart()
         shopcart_item.deserialize(item)
@@ -180,9 +180,19 @@ def update_shopcart(customer_id):
                 status.HTTP_409_CONFLICT,
                 f"Customer {customer_id} is not consistent with request"
             )
+        if shopcart_item.product_id not in product_id_updated:
+            product_id_updated.add(shopcart_item.product_id)
+            products.append(shopcart_item)  
+        else:
+            logger.info(
+                f"Duplicate entries for {shopcart_item.product_id} found in request")
+            abort(
+                status.HTTP_409_CONFLICT,
+                f"Duplicate entries for {shopcart_item.product_id} found in request"
+            )
+    for product in products:
         shopcart_item.create()
-        logger.info(f"Added item {item['product_id']} for customer {customer_id} sucessfully")
-
+        logger.info(f"Added item {product.product_id} for customer {customer_id} sucessfully")
     items = ShopCart.find_by_customer_id(customer_id)
     items_list = list(map(ShopCart.serialize, items))
     logger.info(f"Updated shopcart for customer {customer_id} sucessfully")
