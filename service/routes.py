@@ -12,6 +12,9 @@ from service.models import ShopCart
 from . import app
 
 logger = logging.getLogger("flask.app")
+
+MIN_INT_STRING = '0'
+MAX_INT_STRING = str(2**31-1)
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -366,6 +369,12 @@ def list_shopcart_items(customer_id):
     query_params = request.args.to_dict(flat=False)
     query_quantities = query_params.get('quantity')
 
+    min_quantity = MIN_INT_STRING if (query_params.get('min_quantity') is None) else query_params.get('min_quantity')[0]
+    app.logger.info(f"{customer_id} cart requested min_quantity :: {min_quantity}!!")
+
+    max_quantity = MAX_INT_STRING if (query_params.get('max_quantity') is None) else query_params.get('max_quantity')[0]
+    app.logger.info(f"{customer_id} cart requested max_quantity :: {max_quantity}!!")
+
     if query_quantities:
         for query_qty in query_quantities:
             if not query_qty.lstrip('-').isdigit():
@@ -373,11 +382,23 @@ def list_shopcart_items(customer_id):
                 abort(status.HTTP_400_BAD_REQUEST, f"Quantity: {query_qty} is not a valid value")
 
         query_quantities = [int(qty) for qty in query_quantities]
+    if not min_quantity.lstrip('-').isdigit():
+        logger.error("Invalid value passed for min quantity in query parameters")
+        abort(status.HTTP_400_BAD_REQUEST, f"Quantity: {min_quantity} is not a valid value")
+    if not max_quantity.lstrip('-').isdigit():
+        logger.error("Invalid value passed for max quantity in query parameters")
+        abort(status.HTTP_400_BAD_REQUEST, f"Quantity: {max_quantity} is not a valid value")
 
     results = ShopCart.find_by_customer_id(customer_id)
 
     shopcart_list = {}
     items = []
+
+    min_quantity = int(min_quantity)
+    max_quantity = int(max_quantity)
+    if min_quantity > max_quantity:
+        logger.error("min quantity > max quantity in query parameters")
+        abort(status.HTTP_400_BAD_REQUEST, f"min_quantity({min_quantity}) > max_quantity({max_quantity})")
 
     for record in results:
         current_item = record.serialize()
@@ -387,6 +408,9 @@ def list_shopcart_items(customer_id):
         }
 
         if query_quantities and item['quantity'] not in query_quantities:
+            continue
+        elif not query_quantities and (item['quantity'] < min_quantity or item['quantity'] > max_quantity):
+            app.logger.debug(f"ignoring {item['item_id']} as {item['quantity']} not in range [{min_quantity}, {max_quantity}]")
             continue
 
         items.append(item)
