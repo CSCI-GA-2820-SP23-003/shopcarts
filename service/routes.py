@@ -80,7 +80,7 @@ class ShopcartCollection(Resource):
     # LIST ALL Shopcarts
     # -----------------------------------------------------------
 
-    @api.doc('list_shopcarts')
+    @api.doc(' Returns list of all the shopcarts that are created by the customers')
     @api.marshal_list_with(shopcart_model)
     def get(self):
         """
@@ -103,7 +103,7 @@ class ShopcartCollection(Resource):
     # -----------------------------------------------------------
     # Create a Shopcart
     # -----------------------------------------------------------
-    @api.doc('create_shopcart')
+    @api.doc('Creates a new empty shopcart with customer id')
     @api.response(400, 'The posted data was not valid')
     @api.response(409, 'The shopcart is already created for the given customer')
     @api.expect(shopcart_create_model)
@@ -153,7 +153,7 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     # LIST ALL SHOPCARTS OF A CUSTOMER
     # -----------------------------------------------------------
-    @api.doc('list_all_shopcarts_of_a_customer')
+    @api.doc("Retrieve all the shopcarts of a customer with customer_id as it's identifier")
     @api.response(404, 'Customer has not created shopcart yet')
     @api.marshal_list_with(shopcart_model, code=201)
     def get(self,customer_id):
@@ -188,7 +188,7 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     # DELETE SHOPCART OF A CUSTOMER
     # -----------------------------------------------------------
-    @api.doc('delete_shopcart_of_a_customer')
+    @api.doc('Delete the shopcart of a customer')
     @api.response(404, 'Customer has not created shopcart yet')
     def delete(self,customer_id):
         """
@@ -203,7 +203,7 @@ class CustomerResource(Resource):
     # -----------------------------------------------------------
     # Update a Shopcart
     # -----------------------------------------------------------
-    @api.doc('update_shopcart')
+    @api.doc("Updates shopcart with customer id with the query parameter True and Clears shopcart with query parameter False")
     @api.response(400, 'The customer has not created the shopcart')
     @api.response(409, 'The customer_id provided in payload is not in sync with the one provided in the url requested')
     @api.expect(shopcart_list_model)
@@ -294,7 +294,7 @@ class ItemResource(Resource):
     # # -----------------------------------------------------------
     # # Add an item to the cart
     # # -----------------------------------------------------------
-    @api.doc('add_item_to_shopcart')
+    @api.doc("Add item to shopcart of the customer with customer_id as it's identifier")
     @api.response(400, 'Bad Request: inconsistent customer_id in request payload and url')
     @api.response(409, 'Conflict: product already present in the shopcart')
     @api.expect(shopcart_model)
@@ -341,7 +341,7 @@ class ItemResource(Resource):
     # -----------------------------------------------------------
     # UPDATE PRODUCT QUANTITY IN CART
     # -----------------------------------------------------------
-    @api.doc('update_shopcart_item_of_customer_id')
+    @api.doc("Updates the quantity of an existing product of the customer shopcart with customer_id as it's identifier")
     @api.response(404, 'Bad Request: Cutomer as not created cart')
     @api.response(404, 'Bad Request: Quantity provided should be integer')
     @api.expect(shopcart_model)
@@ -381,7 +381,7 @@ class ItemResource(Resource):
     # -----------------------------------------------------------
     # DELETE PRODUCT FROM CART
     # -----------------------------------------------------------
-    @api.doc('delete_shopcart_item_of_customer_id')
+    @api.doc("Deletes an existing product from cart of the customer with customer_id as it's identifier")
     @api.marshal_with(shopcart_model)
     def delete(self, customer_id, product_id):
         """Deletes an existing product from cart"""
@@ -403,7 +403,7 @@ class ItemResource(Resource):
     # -----------------------------------------------------------
     # READ AN ITEM FROM A SHOPCART
     # -----------------------------------------------------------
-    @api.doc('get_shopcart_item_of_customer_id')
+    @api.doc("Read an item from a shopcart of customer with customer_id as it's identifier")
     @api.response(404, 'Bad Request: Customer as not created cart')
     @api.marshal_with(shopcart_model)
     def get(self,customer_id, product_id):
@@ -434,7 +434,7 @@ class CustomerItemsCollection(Resource):
     # -----------------------------------------------------------
     # LIST ALL ITEMS IN A SHOPCART
     # -----------------------------------------------------------
-    @api.doc('get_shopcart_of_customer_id')
+    @api.doc("Retrieve all the items in a customer's cart")
     @api.response(404, 'Bad Request: Cutomer as not created cart')
     @api.marshal_list_with(shopcart_model)
     def get(self, customer_id):

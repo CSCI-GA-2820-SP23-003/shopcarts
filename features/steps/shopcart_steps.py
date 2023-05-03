@@ -57,5 +57,5 @@ def step_impl(context):
 			context.resp = requests.post(rest_endpoint, json=payload)
 		else:
 			# create shopcart item
-			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items", json=payload)
+			context.resp = requests.post(f"{rest_endpoint}/{row['customer_id']}/items/{row['product_id']}", json=payload)
 		expect(context.resp.status_code).to_equal(201)
